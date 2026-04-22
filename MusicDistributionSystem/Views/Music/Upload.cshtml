@@ -1,0 +1,75 @@
+@model MusicUploadRequestDto
+
+@{
+    ViewData["Title"] = "Upload Music";
+}
+
+<section class="page-intro mb-4">
+    <h1>Upload a release</h1>
+    <p>Submit secure MP3 uploads with moderation status and assign the intended access tier for future free, premium, and gold members.</p>
+</section>
+
+<section class="upload-panel">
+    <form asp-action="Upload" method="post" enctype="multipart/form-data" class="row g-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="col-md-6">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="Artist" class="form-label"></label>
+            <input asp-for="Artist" class="form-control" />
+            <span asp-validation-for="Artist" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="CategoryId" class="form-label"></label>
+            <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+                <option value="">Select a category</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="AccessLevel" class="form-label"></label>
+            <select asp-for="AccessLevel" asp-items="Html.GetEnumSelectList<ContentAccessLevel>()" class="form-select"></select>
+            <span asp-validation-for="AccessLevel" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="MusicFile" class="form-label"></label>
+            <input asp-for="MusicFile" type="file" accept=".mp3,audio/mpeg" class="form-control" />
+            <span asp-validation-for="MusicFile" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="UploadedByName" class="form-label"></label>
+            <input asp-for="UploadedByName" class="form-control" />
+            <span asp-validation-for="UploadedByName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="UploadedByEmail" class="form-label"></label>
+            <input asp-for="UploadedByEmail" class="form-control" />
+            <span asp-validation-for="UploadedByEmail" class="text-danger"></span>
+        </div>
+
+        <div class="col-12">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" rows="5" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
+            <button class="btn btn-brand btn-lg" type="submit">Submit for approval</button>
+            <span class="text-muted">Allowed format: MP3. Maximum size: 20 MB. File content is validated before storage.</span>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

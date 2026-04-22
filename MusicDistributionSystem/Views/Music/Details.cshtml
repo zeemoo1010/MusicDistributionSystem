@@ -1,0 +1,59 @@
+@model MusicDetailsDto
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@if (TempData["StatusMessage"] is string message)
+{
+    <div class="alert alert-info shadow-sm">@message</div>
+}
+
+<section class="detail-hero">
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-8">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span class="eyebrow">@Model.CategoryName</span>
+                <span class="access-badge access-@Model.AccessLevel.ToString().ToLowerInvariant()">@Model.AccessLevel</span>
+            </div>
+            <h1 class="mt-2">@Model.Title</h1>
+            <p class="artist-name fs-4">@Model.Artist</p>
+            <p class="text-muted">@(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided for this release." : Model.Description)</p>
+            @if (Model.AccessLevel != ContentAccessLevel.Free)
+            {
+                <div class="tier-note">
+                    This release is tagged for paid membership access. The subscription and authentication module is the next step for enforcing this fully.
+                </div>
+            }
+        </div>
+        <div class="col-lg-4">
+            <div class="detail-card">
+                <div class="detail-row">
+                    <span>Downloads</span>
+                    <strong>@Model.DownloadCount</strong>
+                </div>
+                <div class="detail-row">
+                    <span>File size</span>
+                    <strong>@Math.Round(Model.FileSizeBytes / 1024d / 1024d, 2) MB</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Uploaded by</span>
+                    <strong>@Model.UploadedByName</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Access</span>
+                    <strong>@Model.AccessLevel</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Published</span>
+                    <strong>@Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</strong>
+                </div>
+                <form asp-action="Download" asp-route-id="@Model.Id" method="post" class="d-grid mt-4">
+                    <button class="btn btn-brand btn-lg" type="submit">
+                        @(Model.AccessLevel == ContentAccessLevel.Free ? "Download MP3" : $"Unlock with {Model.AccessLevel}")
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

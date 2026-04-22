@@ -1,0 +1,270 @@
+:root {
+  --bg: #f6f1e8;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: #fffaf2;
+  --border: rgba(75, 55, 34, 0.12);
+  --text: #23180f;
+  --muted: #6f6154;
+  --brand: #bf5a2a;
+  --brand-dark: #8f3914;
+  --premium: #124e78;
+  --gold: #8f6a18;
+  --shadow: 0 18px 40px rgba(66, 41, 22, 0.12);
+}
+
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  background:
+    radial-gradient(circle at top left, rgba(191, 90, 42, 0.18), transparent 24%),
+    radial-gradient(circle at top right, rgba(31, 118, 104, 0.18), transparent 20%),
+    linear-gradient(180deg, #f8f3ec 0%, #f4ecdf 45%, #efe4d3 100%);
+}
+
+a {
+  color: var(--brand-dark);
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.12rem rgba(255, 255, 255, 0.95), 0 0 0 0.28rem rgba(191, 90, 42, 0.28);
+}
+
+.site-header {
+  padding: 1rem 0;
+}
+
+.nav-user {
+  color: #f8ecdd;
+  font-size: 0.95rem;
+}
+
+.navbar {
+  background: rgba(35, 24, 15, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.navbar-brand,
+.nav-link {
+  color: #f8ecdd !important;
+}
+
+.nav-link {
+  opacity: 0.85;
+}
+
+.nav-link:hover {
+  opacity: 1;
+}
+
+.page-shell {
+  padding-bottom: 4rem;
+}
+
+.hero-panel,
+.filter-panel,
+.upload-panel,
+.detail-card,
+.empty-panel,
+.content-card,
+.plan-card,
+.tier-note {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.hero-panel {
+  padding: 2rem;
+}
+
+.eyebrow,
+.content-meta {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.12rem;
+  font-size: 0.78rem;
+  color: var(--brand-dark);
+  font-weight: 700;
+}
+
+.btn-brand {
+  color: #fff7f1;
+  background: linear-gradient(135deg, var(--brand) 0%, #d17833 100%);
+  border: none;
+}
+
+.btn-brand:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #ab4d22 0%, #bc682d 100%);
+}
+
+.stat-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card,
+.detail-card,
+.plan-card {
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+}
+
+.stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.stat-label,
+.section-heading p,
+.page-intro p,
+.artist-name,
+.empty-panel p,
+.detail-row span,
+.plan-price {
+  color: var(--muted);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.5rem;
+}
+
+.content-card,
+.plan-card {
+  padding: 1.5rem;
+}
+
+.content-card h2,
+.content-card h3,
+.plan-card h3 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.card-footer-row,
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.card-footer-row {
+  margin-top: 1rem;
+}
+
+.filter-panel,
+.upload-panel,
+.empty-panel,
+.detail-hero {
+  padding: 1.5rem;
+}
+
+.plan-features {
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--text);
+}
+
+.plan-price {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.access-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04rem;
+}
+
+.access-free {
+  background: rgba(41, 137, 79, 0.14);
+  color: #23633c;
+}
+
+.access-premium {
+  background: rgba(18, 78, 120, 0.14);
+  color: var(--premium);
+}
+
+.access-gold {
+  background: rgba(143, 106, 24, 0.14);
+  color: var(--gold);
+}
+
+.tier-note {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+}
+
+.footer {
+  padding: 1rem 0 2rem;
+}
+
+.auth-shell {
+  max-width: 720px;
+  margin: 2rem auto 0;
+}
+
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  backdrop-filter: blur(14px);
+}
+
+.auth-footer {
+  margin-top: 1.25rem;
+  color: var(--muted);
+}
+
+@media (max-width: 767.98px) {
+  .hero-panel,
+  .filter-panel,
+  .upload-panel,
+  .detail-hero {
+    padding: 1.25rem;
+  }
+
+  .section-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+}

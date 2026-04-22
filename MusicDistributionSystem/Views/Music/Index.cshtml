@@ -1,0 +1,76 @@
+@model MusicIndexDto
+
+@{
+    ViewData["Title"] = "Music Library";
+}
+
+<section class="page-intro mb-4">
+    <h1>Music library</h1>
+    <p>Browse approved releases across free and paid access tiers, with room for premium subscriptions and creator services.</p>
+</section>
+
+@if (TempData["StatusMessage"] is string message)
+{
+    <div class="alert alert-info shadow-sm">@message</div>
+}
+
+<section class="filter-panel mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label" for="searchTerm">Search title, artist, or description</label>
+            <input class="form-control" id="searchTerm" name="searchTerm" value="@Model.SearchTerm" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="categoryId">Category</label>
+            <select class="form-select" id="categoryId" name="categoryId">
+                <option value="">All categories</option>
+                @foreach (var category in Model.Categories)
+                {
+                    if (Model.CategoryId == category.Id)
+                    {
+                        <option value="@category.Id" selected>@category.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-brand" type="submit">Search</button>
+        </div>
+    </form>
+</section>
+
+@if (Model.Tracks.Any())
+{
+    <div class="row g-4">
+        @foreach (var track in Model.Tracks)
+        {
+            <div class="col-md-6 col-xl-4">
+                <article class="content-card h-100">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <div class="content-meta">@track.CategoryName</div>
+                        <span class="access-badge access-@track.AccessLevel.ToString().ToLowerInvariant()">@track.AccessLevel</span>
+                    </div>
+                    <h2>@track.Title</h2>
+                    <p class="artist-name">@track.Artist</p>
+                    <p class="text-muted">@(string.IsNullOrWhiteSpace(track.Description) ? "No description provided." : track.Description)</p>
+                    <div class="card-footer-row">
+                        <span>@track.DownloadCount downloads</span>
+                        <a asp-action="Details" asp-route-id="@track.Id">View details</a>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="empty-panel">
+        <h2>No results found</h2>
+        <p>Try a different search term or category, or upload a new release for moderation.</p>
+        <a class="btn btn-brand" asp-action="Upload">Upload music</a>
+    </div>
+}

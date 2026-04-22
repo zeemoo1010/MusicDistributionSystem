@@ -1,0 +1,139 @@
+@model HomeIndexDto
+
+@{
+    ViewData["Title"] = "Build Beyond Music Blogs";
+}
+
+<section class="hero-panel mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="eyebrow">Next-generation music distribution</span>
+            <h1 class="display-4 fw-bold mt-3">A premium-ready platform built to outgrow the old content-blog model.</h1>
+            <p class="lead text-muted mt-3">
+                This system is moving toward gated releases, stronger moderation, membership services, and a cleaner creator-to-audience pipeline than legacy download sites.
+            </p>
+            <div class="d-flex flex-wrap gap-3 mt-4">
+                <a class="btn btn-brand btn-lg" asp-controller="Music" asp-action="Index">Explore library</a>
+                <a class="btn btn-outline-dark btn-lg" asp-controller="Music" asp-action="Upload">Submit release</a>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="stat-card-grid">
+                <div class="stat-card">
+                    <span class="stat-value">@Model.ApprovedTrackCount</span>
+                    <span class="stat-label">Approved tracks</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">@Model.PremiumTrackCount</span>
+                    <span class="stat-label">Premium releases</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">@Model.TotalDownloads</span>
+                    <span class="stat-label">Downloads served</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="section-heading">
+        <div>
+            <h2>Platform direction</h2>
+            <p>The long-term vision is a more scalable product with real membership economics and stronger safety controls.</p>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <article class="content-card h-100">
+                <div class="content-meta">Monetization</div>
+                <h3>Free and paid access</h3>
+                <p class="text-muted">Different release tiers can support discovery, exclusive drops, and premium subscriber benefits.</p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="content-card h-100">
+                <div class="content-meta">Security</div>
+                <h3>Stronger upload controls</h3>
+                <p class="text-muted">Validation, moderation states, and safer HTTP defaults set a better baseline than a typical content blog.</p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="content-card h-100">
+                <div class="content-meta">Scalability</div>
+                <h3>Structured data model</h3>
+                <p class="text-muted">Membership tiers, access levels, plans, and download tracking are being built into the platform core.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="section-heading">
+        <div>
+            <h2>Membership plans</h2>
+            <p>These are the first plan definitions for the premium/free roadmap.</p>
+        </div>
+    </div>
+    <div class="row g-4">
+        @foreach (var plan in Model.MembershipPlans)
+        {
+            <div class="col-md-6 col-xl-4">
+                <article class="plan-card h-100">
+                    <div class="content-meta">@plan.Tier</div>
+                    <h3>@plan.Name</h3>
+                    <p class="plan-price">@(plan.MonthlyPrice == 0 ? "Free" : $"NGN {plan.MonthlyPrice:N0}/month")</p>
+                    <p class="text-muted">@plan.Description</p>
+                    <ul class="plan-features">
+                        <li>@plan.MonthlyDownloadLimit monthly downloads</li>
+                        <li>@(plan.HasAdFreeExperience ? "Ad-free experience" : "Ad-supported experience")</li>
+                        <li>@(plan.HasPriorityReview ? "Priority release review" : "Standard moderation queue")</li>
+                        <li>@(plan.HasArtistPromotionTools ? "Artist promotion tools" : "No promotion suite yet")</li>
+                    </ul>
+                </article>
+            </div>
+        }
+    </div>
+</section>
+
+<section>
+    <div class="section-heading">
+        <div>
+            <h2>Latest approved releases</h2>
+            <p>Moderated tracks now carry access-level metadata for future membership enforcement.</p>
+        </div>
+        <a class="btn btn-sm btn-outline-dark" asp-controller="Music" asp-action="Index">View library</a>
+    </div>
+
+    @if (Model.LatestTracks.Any())
+    {
+        <div class="row g-4">
+            @foreach (var track in Model.LatestTracks)
+            {
+                <div class="col-md-6 col-xl-4">
+                    <article class="content-card h-100">
+                        <div class="d-flex justify-content-between align-items-center gap-2">
+                        <div class="content-meta">@track.CategoryName</div>
+                            <span class="access-badge access-@track.AccessLevel.ToString().ToLowerInvariant()">@track.AccessLevel</span>
+                        </div>
+                        <h3>@track.Title</h3>
+                        <p class="artist-name">@track.Artist</p>
+                        <p class="text-muted">@(string.IsNullOrWhiteSpace(track.Description) ? "No description yet." : track.Description)</p>
+                        <div class="card-footer-row">
+                            <span>@track.DownloadCount downloads</span>
+                            <a asp-controller="Music" asp-action="Details" asp-route-id="@track.Id">Open</a>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-panel">
+            <h3>No approved tracks yet</h3>
+            <p>Start with uploads, moderation, and tiered release settings to build the library.</p>
+            <a class="btn btn-brand" asp-controller="Music" asp-action="Upload">Upload now</a>
+        </div>
+    }
+</section>
