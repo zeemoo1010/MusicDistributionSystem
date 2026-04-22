@@ -41,7 +41,6 @@ namespace MusicDistributionSystem.Context
             modelBuilder.Entity<MusicTrack>()
                 .Property(track => track.AccessLevel)
                 .HasDefaultValue(ContentAccessLevel.Free);
-
             modelBuilder.Entity<ImageAsset>()
                 .Property(image => image.CreatedAt)
                 .HasDefaultValueSql("GETUTCDATE()");

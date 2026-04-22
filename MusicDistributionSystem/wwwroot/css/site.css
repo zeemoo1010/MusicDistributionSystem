@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 :root {
   --bg: #f6f1e8;
   --surface: rgba(255, 255, 255, 0.82);
@@ -16,6 +17,10 @@ html {
   font-size: 14px;
   position: relative;
   min-height: 100%;
+=======
+html {
+  font-size: 14px;
+>>>>>>> 7ce50458418820881a3597f7a04bd018fbf5873f
 }
 
 @media (min-width: 768px) {
@@ -24,6 +29,7 @@ html {
   }
 }
 
+<<<<<<< HEAD
 body {
   margin: 0;
   color: var(--text);
@@ -268,3 +274,26 @@ a {
     flex-direction: column;
   }
 }
+=======
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+>>>>>>> 7ce50458418820881a3597f7a04bd018fbf5873f

@@ -36,7 +36,6 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IMusicService, MusicService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

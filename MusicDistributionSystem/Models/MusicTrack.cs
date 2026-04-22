@@ -29,7 +29,6 @@ namespace MusicDistributionSystem.Models
         public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
 
         public ContentAccessLevel AccessLevel { get; set; } = ContentAccessLevel.Free;
-
         public int DownloadCount { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
