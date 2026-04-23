@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MusicDistributionSystem.DTOs.Music;
 using MusicDistributionSystem.Enums;
+using MusicDistributionSystem.Logging.Interfaces;
 using MusicDistributionSystem.Models;
 using MusicDistributionSystem.Repositories.Interfaces;
 using MusicDistributionSystem.Services.Interfaces;
@@ -14,17 +15,20 @@ namespace MusicDistributionSystem.Services
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUploadedFileSecurityService _uploadedFileSecurityService;
         private readonly IWebHostEnvironment _environment;
+        private readonly IAppLogger _appLogger;
 
         public MusicService(
             IMusicRepository musicRepository,
             ICategoryRepository categoryRepository,
             IUploadedFileSecurityService uploadedFileSecurityService,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            IAppLogger appLogger)
         {
             _musicRepository = musicRepository;
             _categoryRepository = categoryRepository;
             _uploadedFileSecurityService = uploadedFileSecurityService;
             _environment = environment;
+            _appLogger = appLogger;
         }
 
         public async Task<MusicIndexDto> GetMusicIndexAsync(string? searchTerm, Guid? categoryId)
@@ -75,7 +79,7 @@ namespace MusicDistributionSystem.Services
             return request;
         }
 
-        public async Task<MusicUploadResultDto> UploadAsync(MusicUploadRequestDto request)
+        public async Task<MusicUploadResultDto> UploadAsync(MusicUploadRequestDto request, Guid uploaderUserId, string uploaderName, string uploaderEmail)
         {
             if (request.MusicFile is null)
             {
@@ -113,8 +117,9 @@ namespace MusicDistributionSystem.Services
                 Description = request.Description?.Trim(),
                 CategoryId = request.CategoryId!.Value,
                 AccessLevel = request.AccessLevel,
-                UploadedByName = request.UploadedByName.Trim(),
-                UploadedByEmail = request.UploadedByEmail.Trim(),
+                UploadedByUserId = uploaderUserId,
+                UploadedByName = uploaderName.Trim(),
+                UploadedByEmail = uploaderEmail.Trim(),
                 OriginalFileName = Path.GetFileName(request.MusicFile.FileName),
                 FilePath = Path.Combine("uploads", "music", storedFileName).Replace("\\", "/"),
                 FileSizeBytes = request.MusicFile.Length,
@@ -123,6 +128,7 @@ namespace MusicDistributionSystem.Services
 
             await _musicRepository.AddAsync(track);
             await _musicRepository.SaveChangesAsync();
+            await _appLogger.LogInformationAsync("Music", $"Track '{track.Title}' uploaded by '{track.UploadedByEmail}' and queued for approval.");
 
             return new MusicUploadResultDto
             {
@@ -143,6 +149,7 @@ namespace MusicDistributionSystem.Services
 
             if (track.AccessLevel != ContentAccessLevel.Free)
             {
+                await _appLogger.LogWarningAsync("Music", $"Blocked premium download attempt for track '{track.Id}'.");
                 return new MusicDownloadResultDto
                 {
                     Found = true,
@@ -170,6 +177,7 @@ namespace MusicDistributionSystem.Services
                 DownloaderIpAddress = downloaderIpAddress
             });
             await _musicRepository.SaveChangesAsync();
+            await _appLogger.LogInformationAsync("Music", $"Download served for track '{track.Id}' to '{downloaderIpAddress ?? "unknown-ip"}'.");
 
             return new MusicDownloadResultDto
             {

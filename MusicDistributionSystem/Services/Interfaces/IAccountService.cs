@@ -6,5 +6,10 @@ namespace MusicDistributionSystem.Services.Interfaces
     {
         Task<AuthResultDto> RegisterAsync(RegisterRequestDto request);
         Task<AuthResultDto> LoginAsync(LoginRequestDto request);
+        Task<OperationResultDto> VerifyEmailAsync(VerifyEmailRequestDto request);
+        Task RequestPasswordResetAsync(ForgotPasswordRequestDto request);
+        Task<OperationResultDto> ResetPasswordAsync(ResetPasswordRequestDto request);
+        Task<OperationResultDto> ResendVerificationCodeAsync(string email);
+        Task<IReadOnlyCollection<string>> GetUserRolesAsync(Guid userId);
     }
 }

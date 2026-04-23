@@ -26,16 +26,6 @@ namespace MusicDistributionSystem.DTOs.Music
         public ContentAccessLevel AccessLevel { get; set; } = ContentAccessLevel.Free;
 
         [Required]
-        [StringLength(100)]
-        [Display(Name = "Your name")]
-        public string UploadedByName { get; set; } = string.Empty;
-
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Your email")]
-        public string UploadedByEmail { get; set; } = string.Empty;
-
-        [Required]
         [Display(Name = "MP3 file")]
         public IFormFile? MusicFile { get; set; }
 

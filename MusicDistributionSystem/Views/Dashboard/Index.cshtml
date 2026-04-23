@@ -1,0 +1,70 @@
+@model MusicDistributionSystem.DTOs.Dashboard.DashboardIndexDto
+
+@{
+    ViewData["Title"] = "My Dashboard";
+}
+
+<section class="page-intro mb-4">
+    <h1>My dashboard</h1>
+    <p>Manage your profile access and review the status of your submissions.</p>
+</section>
+
+<section class="content-card mb-4">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="content-meta">Username</div>
+            <div>@Model.Username</div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-meta">Email</div>
+            <div>@Model.Email</div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-meta">Roles</div>
+            <div>@string.Join(", ", Model.Roles)</div>
+        </div>
+    </div>
+</section>
+
+<section class="content-card">
+    <h2>My uploads</h2>
+    @if (Model.Uploads.Any())
+    {
+        <div class="table-responsive mt-3">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Artist</th>
+                        <th>Status</th>
+                        <th>Access</th>
+                        <th>Submitted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var upload in Model.Uploads)
+                    {
+                        <tr>
+                            <td>@upload.Title</td>
+                            <td>@upload.Artist</td>
+                            <td>@upload.ApprovalStatus</td>
+                            <td>@upload.AccessLevel</td>
+                            <td>@upload.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                            <td>
+                                <form asp-action="DeleteUpload" method="post">
+                                    <input type="hidden" name="id" value="@upload.Id" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted mt-3">You have not uploaded any tracks yet.</p>
+    }
+</section>

@@ -23,6 +23,13 @@ namespace MusicDistributionSystem.Controllers
             return View(new LoginRequestDto());
         }
 
+        [HttpGet]
+        [IgnoreAntiforgeryToken]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequestDto request)
         {
@@ -35,6 +42,11 @@ namespace MusicDistributionSystem.Controllers
             if (!result.Succeeded)
             {
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Login failed.");
+                if (result.RequiresVerification)
+                {
+                    ViewBag.PendingVerificationEmail = request.Email;
+                }
+
                 return View(request);
             }
 
@@ -65,9 +77,97 @@ namespace MusicDistributionSystem.Controllers
                 return View(request);
             }
 
-            await SignInAsync(result, isPersistent: false);
-            TempData["StatusMessage"] = $"Welcome to SoundSphere, {result.Username}.";
-            return RedirectToAction("Index", "Home");
+            TempData["StatusMessage"] = $"We sent a verification code to {result.Email}. Enter the code to confirm your account.";
+            return RedirectToAction(nameof(VerifyEmail), new { email = result.Email });
+        }
+
+        [HttpGet]
+        [IgnoreAntiforgeryToken]
+        public IActionResult VerifyEmail(string? email = null)
+        {
+            return View(new VerifyEmailRequestDto
+            {
+                Email = email ?? string.Empty
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyEmail(VerifyEmailRequestDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            var result = await _accountService.VerifyEmailAsync(request);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Verification failed.");
+                return View(request);
+            }
+
+            TempData["StatusMessage"] = "Your account has been verified. You can now log in.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResendVerificationCode(string email)
+        {
+            var result = await _accountService.ResendVerificationCodeAsync(email);
+            TempData["StatusMessage"] = result.Succeeded
+                ? $"A fresh verification code was sent to {email}."
+                : result.ErrorMessage ?? "Unable to resend the verification code.";
+
+            return RedirectToAction(nameof(VerifyEmail), new { email });
+        }
+
+        [HttpGet]
+        [IgnoreAntiforgeryToken]
+        public IActionResult ForgotPassword()
+        {
+            return View(new ForgotPasswordRequestDto());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            await _accountService.RequestPasswordResetAsync(request);
+            TempData["StatusMessage"] = "If the account exists, a password reset code has been sent to the email address.";
+            return RedirectToAction(nameof(ResetPassword), new { email = request.Email });
+        }
+
+        [HttpGet]
+        [IgnoreAntiforgeryToken]
+        public IActionResult ResetPassword(string? email = null)
+        {
+            return View(new ResetPasswordRequestDto
+            {
+                Email = email ?? string.Empty
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            var result = await _accountService.ResetPasswordAsync(request);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Password reset failed.");
+                return View(request);
+            }
+
+            TempData["StatusMessage"] = "Your password has been reset. Please log in with your new password.";
+            return RedirectToAction(nameof(Login));
         }
 
         [HttpPost]
@@ -83,10 +183,18 @@ namespace MusicDistributionSystem.Controllers
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, result.UserId.ToString()),
-                new(ClaimTypes.Name, result.Username),
-                new(ClaimTypes.Email, result.Email),
-                new(ClaimTypes.Role, result.Role)
+                new(ClaimTypes.Name, result.Username)
             };
+
+            if (!string.IsNullOrWhiteSpace(result.Email))
+            {
+                claims.Add(new Claim(ClaimTypes.Email, result.Email));
+            }
+
+            foreach (var role in result.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);

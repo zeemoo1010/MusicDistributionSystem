@@ -120,6 +120,17 @@ a {
   background: linear-gradient(135deg, #ab4d22 0%, #bc682d 100%);
 }
 
+.btn-plan-select {
+  color: #fff7f1;
+  background: linear-gradient(135deg, #1f4b6e 0%, #0f7b6c 100%);
+  border: none;
+}
+
+.btn-plan-select:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #173b57 0%, #0d665a 100%);
+}
+
 .stat-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -253,6 +264,20 @@ a {
 .auth-footer {
   margin-top: 1.25rem;
   color: var(--muted);
+}
+
+.auth-helper {
+  background: rgba(255, 250, 242, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.checkout-summary {
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
 }
 
 @media (max-width: 767.98px) {

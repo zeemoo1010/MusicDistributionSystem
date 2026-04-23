@@ -37,7 +37,16 @@
             </div>
         </form>
 
+        @if (ViewBag.PendingVerificationEmail is string pendingEmail && !string.IsNullOrWhiteSpace(pendingEmail))
+        {
+            <div class="auth-helper mt-3">
+                <p class="mb-2">Need to confirm your account first?</p>
+                <a class="btn btn-sm btn-outline-secondary" asp-action="VerifyEmail" asp-route-email="@pendingEmail">Enter verification code</a>
+            </div>
+        }
+
         <p class="auth-footer">No account yet? <a asp-action="Register">Create one</a>.</p>
+        <p class="auth-footer"><a asp-action="ForgotPassword">Forgot your password?</a></p>
     </div>
 </section>
 

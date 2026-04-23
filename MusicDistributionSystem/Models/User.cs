@@ -19,14 +19,20 @@ namespace MusicDistributionSystem.Models
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(20)]
-        public string Role { get; set; } = "User";
-
         public MembershipTier MembershipTier { get; set; } = MembershipTier.Free;
 
         public bool IsEmailVerified { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
+
+        public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+
+        public DateTime? LastLoginAtUtc { get; set; }
+
+        public ICollection<AccountToken> AccountTokens { get; set; } = new List<AccountToken>();
+
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+        public ICollection<MusicTrack> UploadedTracks { get; set; } = new List<MusicTrack>();
     }
 }

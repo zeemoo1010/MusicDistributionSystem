@@ -1,4 +1,15 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+document.addEventListener("DOMContentLoaded", () => {
+  const planButtons = document.querySelectorAll(".btn-plan-select");
 
-// Write your JavaScript code.
+  for (const button of planButtons) {
+    button.addEventListener("click", () => {
+      const planId = button.dataset.planId;
+
+      if (!planId) {
+        return;
+      }
+
+      window.location.href = `/Payment/Checkout?planId=${encodeURIComponent(planId)}`;
+    });
+  }
+});

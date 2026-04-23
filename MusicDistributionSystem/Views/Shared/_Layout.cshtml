@@ -26,9 +26,30 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Music" asp-action="Index">Music</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Music" asp-action="Upload">Upload</a>
-                        </li>
+                        @if (User.IsInRole("Uploader") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Music" asp-action="Upload">Upload</a>
+                            </li>
+                        }
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Moderator") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Moderation" asp-action="Index">Moderation</a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
@@ -37,7 +58,10 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <span class="nav-user">Hi, @User.Identity.Name</span>
-                            <a class="btn btn-sm btn-brand" asp-area="" asp-controller="Music" asp-action="Upload">Submit Track</a>
+                            @if (User.IsInRole("Uploader") || User.IsInRole("Admin"))
+                            {
+                                <a class="btn btn-sm btn-brand" asp-area="" asp-controller="Music" asp-action="Upload">Submit Track</a>
+                            }
                             <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 <button class="btn btn-sm btn-outline-light" type="submit">Logout</button>
                             </form>

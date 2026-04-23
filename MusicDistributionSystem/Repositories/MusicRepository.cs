@@ -67,6 +67,42 @@ namespace MusicDistributionSystem.Repositories
             return await query.FirstOrDefaultAsync();
         }
 
+        public async Task<MusicTrack?> GetByIdAsync(Guid id, bool asNoTracking = true)
+        {
+            var query = _context.MusicTracks
+                .Include(track => track.Category)
+                .Include(track => track.UploadedByUser)
+                .Where(track => track.Id == id);
+
+            if (asNoTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public async Task<IReadOnlyCollection<MusicTrack>> GetPendingTracksAsync()
+        {
+            return await _context.MusicTracks
+                .AsNoTracking()
+                .Include(track => track.Category)
+                .Include(track => track.UploadedByUser)
+                .Where(track => track.ApprovalStatus == ApprovalStatus.Pending)
+                .OrderBy(track => track.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<IReadOnlyCollection<MusicTrack>> GetTracksByUploaderAsync(Guid uploaderUserId)
+        {
+            return await _context.MusicTracks
+                .AsNoTracking()
+                .Include(track => track.Category)
+                .Where(track => track.UploadedByUserId == uploaderUserId)
+                .OrderByDescending(track => track.CreatedAt)
+                .ToListAsync();
+        }
+
         public Task<int> CountApprovedAsync()
         {
             return _context.MusicTracks.CountAsync(track => track.ApprovalStatus == ApprovalStatus.Approved);
@@ -87,6 +123,11 @@ namespace MusicDistributionSystem.Repositories
         public async Task AddAsync(MusicTrack track)
         {
             await _context.MusicTracks.AddAsync(track);
+        }
+
+        public void Remove(MusicTrack track)
+        {
+            _context.MusicTracks.Remove(track);
         }
 
         public async Task AddDownloadRecordAsync(DownloadRecord downloadRecord)

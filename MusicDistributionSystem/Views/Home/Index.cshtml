@@ -90,6 +90,15 @@
                         <li>@(plan.HasPriorityReview ? "Priority release review" : "Standard moderation queue")</li>
                         <li>@(plan.HasArtistPromotionTools ? "Artist promotion tools" : "No promotion suite yet")</li>
                     </ul>
+                    <div class="mt-4 d-grid">
+                        <button
+                            class="btn btn-plan-select"
+                            type="button"
+                            data-plan-id="@plan.Id"
+                            data-plan-name="@plan.Name">
+                            @(plan.MonthlyPrice == 0 ? "Start free plan" : $"Choose {plan.Tier}")
+                        </button>
+                    </div>
                 </article>
             </div>
         }
@@ -113,7 +122,7 @@
                 <div class="col-md-6 col-xl-4">
                     <article class="content-card h-100">
                         <div class="d-flex justify-content-between align-items-center gap-2">
-                        <div class="content-meta">@track.CategoryName</div>
+                            <div class="content-meta">@track.CategoryName</div>
                             <span class="access-badge access-@track.AccessLevel.ToString().ToLowerInvariant()">@track.AccessLevel</span>
                         </div>
                         <h3>@track.Title</h3>
@@ -136,5 +145,4 @@
             <a class="btn btn-brand" asp-controller="Music" asp-action="Upload">Upload now</a>
         </div>
     }
-</section>
 </section>

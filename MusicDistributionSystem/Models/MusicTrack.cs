@@ -38,6 +38,9 @@ namespace MusicDistributionSystem.Models
         public Guid CategoryId { get; set; }
         public Category? Category { get; set; }
 
+        public Guid UploadedByUserId { get; set; }
+        public User? UploadedByUser { get; set; }
+
         [StringLength(100)]
         public string UploadedByName { get; set; } = string.Empty;
 

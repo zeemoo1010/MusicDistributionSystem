@@ -1,19 +1,18 @@
+using MusicDistributionSystem.Configuration;
+using MusicDistributionSystem.Constants;
 using MusicDistributionSystem.Enums;
 using MusicDistributionSystem.Models;
+using MusicDistributionSystem.Services.Security;
 
 namespace MusicDistributionSystem.Data
 {
     public static class DbInitializer
     {
-        public static void Initialize(Context.ApplicationDbContext context, bool resetDatabaseOnStartup = false)
+        public static async Task SeedAsync(
+            Context.ApplicationDbContext context,
+            IPasswordHasherService passwordHasherService,
+            DefaultAdminSettings defaultAdminSettings)
         {
-            if (resetDatabaseOnStartup)
-            {
-                context.Database.EnsureDeleted();
-            }
-
-            context.Database.EnsureCreated();
-
             if (!context.Categories.Any())
             {
                 context.Categories.AddRange(
@@ -23,8 +22,6 @@ namespace MusicDistributionSystem.Data
                     new Category { Name = "Highlife", Description = "Classic and contemporary highlife sounds." },
                     new Category { Name = "Mixtapes", Description = "DJ mixes and curated listening sessions." }
                 );
-
-                context.SaveChanges();
             }
 
             if (!context.MembershipPlans.Any())
@@ -64,9 +61,50 @@ namespace MusicDistributionSystem.Data
                         HasArtistPromotionTools = true
                     }
                 );
-
-                context.SaveChanges();
             }
+
+            foreach (var roleName in RoleNames.All)
+            {
+                if (!context.Roles.Any(role => role.Name == roleName))
+                {
+                    context.Roles.Add(new Role
+                    {
+                        Name = roleName,
+                        Description = roleName switch
+                        {
+                            RoleNames.Admin => "Full platform administration access.",
+                            RoleNames.Moderator => "Review and moderate submitted content.",
+                            RoleNames.Uploader => "Upload and manage owned music releases.",
+                            _ => "General registered account for authenticated listeners."
+                        }
+                    });
+                }
+            }
+
+            await context.SaveChangesAsync();
+
+            if (!context.Users.Any(user => user.Email == defaultAdminSettings.Email.ToLower()))
+            {
+                var adminRole = context.Roles.First(role => role.Name == RoleNames.Admin);
+                var admin = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = defaultAdminSettings.Username,
+                    Email = defaultAdminSettings.Email.Trim().ToLowerInvariant(),
+                    PasswordHash = passwordHasherService.HashPassword(defaultAdminSettings.Password),
+                    IsActive = true,
+                    IsEmailVerified = true
+                };
+
+                context.Users.Add(admin);
+                context.UserRoles.Add(new UserRole
+                {
+                    UserId = admin.Id,
+                    RoleId = adminRole.Id
+                });
+            }
+
+            await context.SaveChangesAsync();
         }
     }
 }

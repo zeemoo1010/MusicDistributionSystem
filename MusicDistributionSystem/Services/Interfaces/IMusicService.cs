@@ -7,7 +7,7 @@ namespace MusicDistributionSystem.Services.Interfaces
         Task<MusicIndexDto> GetMusicIndexAsync(string? searchTerm, Guid? categoryId);
         Task<MusicDetailsDto?> GetMusicDetailsAsync(Guid id);
         Task<MusicUploadRequestDto> GetUploadFormAsync();
-        Task<MusicUploadResultDto> UploadAsync(MusicUploadRequestDto request);
+        Task<MusicUploadResultDto> UploadAsync(MusicUploadRequestDto request, Guid uploaderUserId, string uploaderName, string uploaderEmail);
         Task<MusicDownloadResultDto> PrepareDownloadAsync(Guid id, string? downloaderIpAddress);
     }
 }

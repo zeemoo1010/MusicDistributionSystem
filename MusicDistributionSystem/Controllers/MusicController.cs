@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicDistributionSystem.DTOs.Music;
 using MusicDistributionSystem.Services.Interfaces;
@@ -30,6 +32,7 @@ namespace MusicDistributionSystem.Controllers
             return View(track);
         }
 
+        [Authorize(Policy = "CanUploadContent")]
         [HttpGet]
         [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Upload()
@@ -38,6 +41,7 @@ namespace MusicDistributionSystem.Controllers
             return View(model);
         }
 
+        [Authorize(Policy = "CanUploadContent")]
         [HttpPost]
         public async Task<IActionResult> Upload(MusicUploadRequestDto request)
         {
@@ -48,7 +52,16 @@ namespace MusicDistributionSystem.Controllers
                 return View(hydratedRequest);
             }
 
-            var result = await _musicService.UploadAsync(request);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var username = User.Identity?.Name;
+
+            if (!Guid.TryParse(userId, out var parsedUserId) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(username))
+            {
+                return Forbid();
+            }
+
+            var result = await _musicService.UploadAsync(request, parsedUserId, username, email);
             if (!result.Succeeded)
             {
                 ModelState.AddModelError(nameof(request.MusicFile), result.ErrorMessage ?? "Upload failed.");
@@ -61,6 +74,7 @@ namespace MusicDistributionSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Download(Guid id)
         {
@@ -87,8 +101,6 @@ namespace MusicDistributionSystem.Controllers
             destination.Description = source.Description;
             destination.CategoryId = source.CategoryId;
             destination.AccessLevel = source.AccessLevel;
-            destination.UploadedByName = source.UploadedByName;
-            destination.UploadedByEmail = source.UploadedByEmail;
             destination.MusicFile = source.MusicFile;
         }
     }

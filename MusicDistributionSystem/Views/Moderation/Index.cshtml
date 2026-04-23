@@ -1,0 +1,45 @@
+@model MusicDistributionSystem.DTOs.Moderation.ModerationDashboardDto
+
+@{
+    ViewData["Title"] = "Moderation Queue";
+}
+
+<section class="page-intro mb-4">
+    <h1>Moderation queue</h1>
+    <p>Approve or reject pending releases without exposing admin-only system controls.</p>
+</section>
+
+@if (Model.PendingTracks.Any())
+{
+    <div class="row g-4">
+        @foreach (var track in Model.PendingTracks)
+        {
+            <div class="col-xl-6">
+                <article class="content-card h-100">
+                    <div class="content-meta">@track.CategoryName</div>
+                    <h2>@track.Title</h2>
+                    <p class="artist-name">@track.Artist</p>
+                    <p class="text-muted mb-2">Submitted by @track.UploadedByName (@track.UploadedByEmail)</p>
+                    <p class="text-muted mb-3">Submitted @track.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</p>
+                    <div class="d-flex gap-2">
+                        <form asp-action="Approve" method="post">
+                            <input type="hidden" name="id" value="@track.Id" />
+                            <button class="btn btn-brand" type="submit">Approve</button>
+                        </form>
+                        <form asp-action="Reject" method="post">
+                            <input type="hidden" name="id" value="@track.Id" />
+                            <button class="btn btn-outline-danger" type="submit">Reject</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="empty-panel">
+        <h2>No pending uploads</h2>
+        <p>The moderation queue is currently clear.</p>
+    </div>
+}

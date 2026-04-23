@@ -21,5 +21,12 @@ namespace MusicDistributionSystem.Repositories
                 .OrderBy(plan => plan.MonthlyPrice)
                 .ToListAsync();
         }
+
+        public Task<MembershipPlan?> GetByIdAsync(Guid id)
+        {
+            return _context.MembershipPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(plan => plan.Id == id);
+        }
     }
 }

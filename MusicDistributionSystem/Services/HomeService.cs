@@ -2,6 +2,7 @@ using MusicDistributionSystem.DTOs.Common;
 using MusicDistributionSystem.DTOs.Home;
 using MusicDistributionSystem.DTOs.Membership;
 using MusicDistributionSystem.DTOs.Music;
+using Microsoft.Extensions.Caching.Memory;
 using MusicDistributionSystem.Repositories.Interfaces;
 using MusicDistributionSystem.Services.Interfaces;
 
@@ -9,27 +10,37 @@ namespace MusicDistributionSystem.Services
 {
     public class HomeService : IHomeService
     {
+        private static readonly TimeSpan HomeCacheDuration = TimeSpan.FromMinutes(5);
+
         private readonly IMusicRepository _musicRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMembershipPlanRepository _membershipPlanRepository;
+        private readonly IMemoryCache _memoryCache;
 
         public HomeService(
             IMusicRepository musicRepository,
             ICategoryRepository categoryRepository,
-            IMembershipPlanRepository membershipPlanRepository)
+            IMembershipPlanRepository membershipPlanRepository,
+            IMemoryCache memoryCache)
         {
             _musicRepository = musicRepository;
             _categoryRepository = categoryRepository;
             _membershipPlanRepository = membershipPlanRepository;
+            _memoryCache = memoryCache;
         }
 
         public async Task<HomeIndexDto> GetHomeIndexAsync()
         {
+            if (_memoryCache.TryGetValue<HomeIndexDto>("home:index", out var cachedHomeIndex) && cachedHomeIndex is not null)
+            {
+                return cachedHomeIndex;
+            }
+
             var latestTracks = await _musicRepository.GetLatestApprovedTracksAsync(6);
             var categories = await _categoryRepository.GetAllAsync();
             var membershipPlans = await _membershipPlanRepository.GetAllAsync();
 
-            return new HomeIndexDto
+            var homeIndex = new HomeIndexDto
             {
                 LatestTracks = latestTracks.Select(MapMusicCard).ToList(),
                 Categories = categories.Select(MapCategoryOption).ToList(),
@@ -38,6 +49,10 @@ namespace MusicDistributionSystem.Services
                 TotalDownloads = await _musicRepository.GetTotalDownloadsAsync(),
                 PremiumTrackCount = await _musicRepository.CountPremiumApprovedAsync()
             };
+
+            _memoryCache.Set("home:index", homeIndex, HomeCacheDuration);
+
+            return homeIndex;
         }
 
         private static MusicCardDto MapMusicCard(Models.MusicTrack track)

@@ -1,51 +1,124 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Data.Common;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MusicDistributionSystem.Configuration;
+using MusicDistributionSystem.Constants;
 using MusicDistributionSystem.Context;
 using MusicDistributionSystem.Data;
+using MusicDistributionSystem.Logging;
+using MusicDistributionSystem.Logging.Interfaces;
 using MusicDistributionSystem.Middleware;
 using MusicDistributionSystem.Repositories;
 using MusicDistributionSystem.Repositories.Interfaces;
 using MusicDistributionSystem.Services;
 using MusicDistributionSystem.Services.Interfaces;
 using MusicDistributionSystem.Services.Security;
+using Serilog;
+using Serilog.Events;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var logsDirectory = Path.Combine(builder.Environment.ContentRootPath, "Logs");
+Directory.CreateDirectory(logsDirectory);
+
+builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .WriteTo.Console()
+    .WriteTo.File(
+        Path.Combine(logsDirectory, "app-.log"),
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        shared: true));
 
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
-builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
     });
+
+builder.Services.AddMemoryCache();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.Configure<DefaultAdminSettings>(builder.Configuration.GetSection("DefaultAdmin"));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole(RoleNames.Admin));
+    options.AddPolicy("CanModerateContent", policy => policy.RequireRole(RoleNames.Admin, RoleNames.Moderator));
+    options.AddPolicy("CanUploadContent", policy => policy.RequireRole(RoleNames.Admin, RoleNames.Uploader));
+});
 
+builder.Services.AddSingleton<IAppLogger, FileAppLogger>();
 builder.Services.AddScoped<IUploadedFileSecurityService, UploadedFileSecurityService>();
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+builder.Services.AddScoped<IAccountNotificationService, AccountNotificationService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>();
 builder.Services.AddScoped<IMusicRepository, MusicRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IAccountTokenRepository, AccountTokenRepository>();
 builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IMusicService, MusicService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IAdministrationService, AdministrationService>();
+builder.Services.AddScoped<IModerationService, ModerationService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var startupLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+    var passwordHasherService = scope.ServiceProvider.GetRequiredService<IPasswordHasherService>();
+    var defaultAdminSettings = scope.ServiceProvider
+        .GetRequiredService<Microsoft.Extensions.Options.IOptions<DefaultAdminSettings>>()
+        .Value;
     var shouldResetDatabaseOnStartup =
         app.Environment.IsDevelopment() &&
         builder.Configuration.GetValue<bool>("DatabaseSettings:ResetDatabaseOnStartup");
 
-    DbInitializer.Initialize(context, shouldResetDatabaseOnStartup);
+    if (shouldResetDatabaseOnStartup)
+    {
+        await context.Database.EnsureDeletedAsync();
+    }
+
+    var hasDefinedMigrations = context.Database.GetMigrations().Any();
+
+    if (hasDefinedMigrations)
+    {
+        if (app.Environment.IsDevelopment() && await HasLegacySchemaWithoutMigrationHistoryAsync(context))
+        {
+            startupLogger.LogWarning(
+                "Existing development database contains application tables but no EF migration history. Recreating the local database so migrations can be applied cleanly.");
+            await context.Database.EnsureDeletedAsync();
+        }
+
+        await context.Database.MigrateAsync();
+    }
+    else
+    {
+        startupLogger.LogWarning(
+            "No EF Core migrations were found in the application assembly. Falling back to EnsureCreated for local startup. Re-add migrations to restore the normal migration workflow.");
+        await context.Database.EnsureCreatedAsync();
+    }
+
+    await DbInitializer.SeedAsync(context, passwordHasherService, defaultAdminSettings);
 }
 
 if (!app.Environment.IsDevelopment())
@@ -54,6 +127,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseStaticFiles();
@@ -70,3 +144,53 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
+
+static async Task<bool> HasLegacySchemaWithoutMigrationHistoryAsync(ApplicationDbContext context)
+{
+    if (!await context.Database.CanConnectAsync())
+    {
+        return false;
+    }
+
+    var connection = context.Database.GetDbConnection();
+    var shouldCloseConnection = connection.State != System.Data.ConnectionState.Open;
+
+    if (shouldCloseConnection)
+    {
+        await connection.OpenAsync();
+    }
+
+    try
+    {
+        var hasMigrationHistory = await ExecuteScalarIntAsync(
+            connection,
+            "SELECT COUNT(*) FROM sys.tables WHERE name = '__EFMigrationsHistory';");
+
+        if (hasMigrationHistory > 0)
+        {
+            return false;
+        }
+
+        var applicationTableCount = await ExecuteScalarIntAsync(
+            connection,
+            @"SELECT COUNT(*) FROM sys.tables
+              WHERE name IN ('Categories', 'MembershipPlans', 'Users', 'Roles', 'MusicTracks');");
+
+        return applicationTableCount > 0;
+    }
+    finally
+    {
+        if (shouldCloseConnection)
+        {
+            await connection.CloseAsync();
+        }
+    }
+}
+
+static async Task<int> ExecuteScalarIntAsync(DbConnection connection, string commandText)
+{
+    await using var command = connection.CreateCommand();
+    command.CommandText = commandText;
+    var result = await command.ExecuteScalarAsync();
+    return result is null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
+}

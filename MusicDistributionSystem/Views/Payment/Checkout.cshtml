@@ -1,0 +1,33 @@
+@model MusicDistributionSystem.DTOs.Payment.PaymentCheckoutDto
+
+@{
+    ViewData["Title"] = "Payment Checkout";
+}
+
+<section class="auth-shell">
+    <div class="auth-card">
+        <span class="eyebrow">Subscription Checkout</span>
+        <h1>@Model.PlanName</h1>
+        <p class="text-muted">@Model.Description</p>
+
+        <div class="checkout-summary mt-4">
+            <div class="detail-row">
+                <span>Tier</span>
+                <strong>@Model.TierName</strong>
+            </div>
+            <div class="detail-row">
+                <span>Monthly price</span>
+                <strong>@(Model.MonthlyPrice == 0 ? "Free" : $"NGN {Model.MonthlyPrice:N0}/month")</strong>
+            </div>
+        </div>
+
+        <div class="tier-note mt-4">
+            Payment gateway integration is the next step. This page is now the redirect target for Premium, Gold, and future subscription plans.
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 mt-4">
+            <button class="btn btn-brand btn-lg" type="button">Proceed to payment</button>
+            <a class="btn btn-outline-dark btn-lg" asp-controller="Home" asp-action="Index">Back to plans</a>
+        </div>
+    </div>
+</section>
