@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using MusicDistributionSystem.Enums;
+using MusicDistributionSystem.Domain.Enums;
 
-namespace MusicDistributionSystem.ViewModels
+namespace MusicDistributionSystem.Application.DTOs.Music
 {
-    public class MusicUploadViewModel
+    public class MusicUploadRequestDto
     {
         [Required]
         [StringLength(150)]
@@ -26,19 +26,10 @@ namespace MusicDistributionSystem.ViewModels
         public ContentAccessLevel AccessLevel { get; set; } = ContentAccessLevel.Free;
 
         [Required]
-        [StringLength(100)]
-        [Display(Name = "Your name")]
-        public string UploadedByName { get; set; } = string.Empty;
-
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Your email")]
-        public string UploadedByEmail { get; set; } = string.Empty;
-
-        [Required]
         [Display(Name = "MP3 file")]
         public IFormFile? MusicFile { get; set; }
 
         public IEnumerable<SelectListItem> Categories { get; set; } = Enumerable.Empty<SelectListItem>();
     }
 }
+

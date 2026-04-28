@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
-using MusicDistributionSystem.DTOs.Music;
-using MusicDistributionSystem.Enums;
-using MusicDistributionSystem.Logging.Interfaces;
-using MusicDistributionSystem.Models;
-using MusicDistributionSystem.Repositories.Interfaces;
-using MusicDistributionSystem.Services.Interfaces;
-using MusicDistributionSystem.Services.Security;
+using MusicDistributionSystem.Application.DTOs.Music;
+using MusicDistributionSystem.Domain.Enums;
+using MusicDistributionSystem.Infrastructure.Logging;
+using MusicDistributionSystem.Domain.Entities;
+using MusicDistributionSystem.Application.Contracts.Repositories;
+using MusicDistributionSystem.Application.Contracts.Services;
+using MusicDistributionSystem.Application.Contracts.Security;
 
-namespace MusicDistributionSystem.Services
+namespace MusicDistributionSystem.Application.Services
 {
     public class MusicService : IMusicService
     {
@@ -218,3 +218,4 @@ namespace MusicDistributionSystem.Services
         }
     }
 }
+

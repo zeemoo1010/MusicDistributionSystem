@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MusicDistributionSystem.Services.Interfaces;
+using MusicDistributionSystem.Application.Contracts.Services;
 
 namespace MusicDistributionSystem.Controllers
 {
@@ -26,3 +26,4 @@ namespace MusicDistributionSystem.Controllers
         }
     }
 }
+

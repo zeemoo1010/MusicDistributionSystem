@@ -1,10 +1,10 @@
-using MusicDistributionSystem.Configuration;
-using MusicDistributionSystem.Constants;
-using MusicDistributionSystem.Enums;
-using MusicDistributionSystem.Models;
-using MusicDistributionSystem.Services.Security;
+using MusicDistributionSystem.Infrastructure.Configuration;
+using MusicDistributionSystem.Domain.Constants;
+using MusicDistributionSystem.Domain.Enums;
+using MusicDistributionSystem.Domain.Entities;
+using MusicDistributionSystem.Application.Contracts.Security;
 
-namespace MusicDistributionSystem.Data
+namespace MusicDistributionSystem.Infrastructure.Persistence
 {
     public static class DbInitializer
     {
@@ -108,3 +108,4 @@ namespace MusicDistributionSystem.Data
         }
     }
 }
+

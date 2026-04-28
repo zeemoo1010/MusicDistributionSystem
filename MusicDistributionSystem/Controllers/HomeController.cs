@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MusicDistributionSystem.Models;
-using MusicDistributionSystem.Services.Interfaces;
+using MusicDistributionSystem.Application.Contracts.Services;
+using MusicDistributionSystem.Presentation;
 
 namespace MusicDistributionSystem.Controllers
 {
@@ -34,3 +34,4 @@ namespace MusicDistributionSystem.Controllers
         }
     }
 }
+

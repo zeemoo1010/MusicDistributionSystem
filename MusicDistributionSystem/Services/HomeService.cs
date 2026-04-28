@@ -1,12 +1,12 @@
-using MusicDistributionSystem.DTOs.Common;
-using MusicDistributionSystem.DTOs.Home;
-using MusicDistributionSystem.DTOs.Membership;
-using MusicDistributionSystem.DTOs.Music;
+using MusicDistributionSystem.Application.DTOs.Common;
+using MusicDistributionSystem.Application.DTOs.Home;
+using MusicDistributionSystem.Application.DTOs.Membership;
+using MusicDistributionSystem.Application.DTOs.Music;
 using Microsoft.Extensions.Caching.Memory;
-using MusicDistributionSystem.Repositories.Interfaces;
-using MusicDistributionSystem.Services.Interfaces;
+using MusicDistributionSystem.Application.Contracts.Repositories;
+using MusicDistributionSystem.Application.Contracts.Services;
 
-namespace MusicDistributionSystem.Services
+namespace MusicDistributionSystem.Application.Services
 {
     public class HomeService : IHomeService
     {
@@ -97,3 +97,4 @@ namespace MusicDistributionSystem.Services
         }
     }
 }
+

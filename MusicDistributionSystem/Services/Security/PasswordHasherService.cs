@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace MusicDistributionSystem.Services.Security
+namespace MusicDistributionSystem.Application.Contracts.Security
 {
     public class PasswordHasherService : IPasswordHasherService
     {
@@ -32,3 +32,4 @@ namespace MusicDistributionSystem.Services.Security
         }
     }
 }
+

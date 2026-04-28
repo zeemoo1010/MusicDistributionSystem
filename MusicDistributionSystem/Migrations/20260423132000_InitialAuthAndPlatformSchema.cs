@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MusicDistributionSystem.Migrations
 {
-    [DbContext(typeof(Context.ApplicationDbContext))]
+    [DbContext(typeof(Infrastructure.Persistence.ApplicationDbContext))]
     [Migration("20260423132000_InitialAuthAndPlatformSchema")]
     public partial class InitialAuthAndPlatformSchema : Migration
     {
@@ -273,3 +273,4 @@ namespace MusicDistributionSystem.Migrations
         }
     }
 }
+

@@ -1,4 +1,4 @@
-namespace MusicDistributionSystem.Models
+namespace MusicDistributionSystem.Domain.Entities
 {
     public class ErrorViewModel
     {
@@ -7,3 +7,4 @@ namespace MusicDistributionSystem.Models
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }
+

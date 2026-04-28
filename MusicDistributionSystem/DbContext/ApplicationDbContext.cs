@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using MusicDistributionSystem.Enums;
-using MusicDistributionSystem.Models;
+using MusicDistributionSystem.Domain.Enums;
+using MusicDistributionSystem.Domain.Entities;
 
-namespace MusicDistributionSystem.Context
+namespace MusicDistributionSystem.Infrastructure.Persistence
 {
     public class ApplicationDbContext : DbContext
     {
@@ -105,3 +105,4 @@ namespace MusicDistributionSystem.Context
         }
     }
 }
+

@@ -1,11 +1,11 @@
 using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Options;
-using MusicDistributionSystem.Configuration;
-using MusicDistributionSystem.Logging.Interfaces;
-using MusicDistributionSystem.Services.Interfaces;
+using MusicDistributionSystem.Infrastructure.Configuration;
+using MusicDistributionSystem.Infrastructure.Logging;
+using MusicDistributionSystem.Application.Contracts.Services;
 
-namespace MusicDistributionSystem.Services
+namespace MusicDistributionSystem.Application.Services
 {
     public class AccountNotificationService : IAccountNotificationService
     {
@@ -71,3 +71,4 @@ namespace MusicDistributionSystem.Services
         }
     }
 }
+

@@ -2,7 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using MusicDistributionSystem.Context;
+using MusicDistributionSystem.Infrastructure.Persistence;
 
 #nullable disable
 
@@ -20,7 +20,7 @@ namespace MusicDistributionSystem.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.AccountToken", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.AccountToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,7 +60,7 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("AccountTokens");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.Category", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,7 +83,7 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.DownloadRecord", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.DownloadRecord", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,7 +107,7 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("DownloadRecords");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.ImageAsset", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.ImageAsset", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -140,7 +140,7 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("ImageAssets");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.MembershipPlan", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MembershipPlan", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -180,7 +180,7 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("MembershipPlans");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.MusicTrack", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MusicTrack", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -257,7 +257,7 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("MusicTracks");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.Role", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -280,7 +280,7 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.User", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -327,7 +327,7 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.UserRole", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.UserRole", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -342,9 +342,9 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.AccountToken", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.AccountToken", b =>
                 {
-                    b.HasOne("MusicDistributionSystem.Models.User", "User")
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "User")
                         .WithMany("AccountTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -353,9 +353,9 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.DownloadRecord", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.DownloadRecord", b =>
                 {
-                    b.HasOne("MusicDistributionSystem.Models.MusicTrack", "MusicTrack")
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.MusicTrack", "MusicTrack")
                         .WithMany("Downloads")
                         .HasForeignKey("MusicTrackId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -364,15 +364,15 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("MusicTrack");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.MusicTrack", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MusicTrack", b =>
                 {
-                    b.HasOne("MusicDistributionSystem.Models.Category", "Category")
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Category", "Category")
                         .WithMany("MusicTracks")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MusicDistributionSystem.Models.User", "UploadedByUser")
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "UploadedByUser")
                         .WithMany("UploadedTracks")
                         .HasForeignKey("UploadedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -383,15 +383,15 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("UploadedByUser");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.UserRole", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.UserRole", b =>
                 {
-                    b.HasOne("MusicDistributionSystem.Models.Role", "Role")
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MusicDistributionSystem.Models.User", "User")
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -402,22 +402,22 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.Category", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Category", b =>
                 {
                     b.Navigation("MusicTracks");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.MusicTrack", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MusicTrack", b =>
                 {
                     b.Navigation("Downloads");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.Role", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Role", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Models.User", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.User", b =>
                 {
                     b.Navigation("AccountTokens");
 
@@ -429,3 +429,4 @@ namespace MusicDistributionSystem.Migrations
         }
     }
 }
+

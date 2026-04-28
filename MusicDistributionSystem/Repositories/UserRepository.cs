@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using MusicDistributionSystem.Context;
-using MusicDistributionSystem.Models;
-using MusicDistributionSystem.Repositories.Interfaces;
+using MusicDistributionSystem.Infrastructure.Persistence;
+using MusicDistributionSystem.Domain.Entities;
+using MusicDistributionSystem.Application.Contracts.Repositories;
 
-namespace MusicDistributionSystem.Repositories
+namespace MusicDistributionSystem.Infrastructure.Persistence.Repositories
 {
     public class UserRepository : IUserRepository
     {
@@ -71,3 +71,4 @@ namespace MusicDistributionSystem.Repositories
         }
     }
 }
+

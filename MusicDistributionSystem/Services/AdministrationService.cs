@@ -1,10 +1,10 @@
-using MusicDistributionSystem.Constants;
-using MusicDistributionSystem.DTOs.Account;
-using MusicDistributionSystem.DTOs.Admin;
-using MusicDistributionSystem.Repositories.Interfaces;
-using MusicDistributionSystem.Services.Interfaces;
+using MusicDistributionSystem.Domain.Constants;
+using MusicDistributionSystem.Application.DTOs.Account;
+using MusicDistributionSystem.Application.DTOs.Admin;
+using MusicDistributionSystem.Application.Contracts.Repositories;
+using MusicDistributionSystem.Application.Contracts.Services;
 
-namespace MusicDistributionSystem.Services
+namespace MusicDistributionSystem.Application.Services
 {
     public class AdministrationService : IAdministrationService
     {
@@ -95,3 +95,4 @@ namespace MusicDistributionSystem.Services
         }
     }
 }
+

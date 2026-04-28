@@ -2,18 +2,18 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Data.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MusicDistributionSystem.Configuration;
-using MusicDistributionSystem.Constants;
-using MusicDistributionSystem.Context;
-using MusicDistributionSystem.Data;
-using MusicDistributionSystem.Logging;
-using MusicDistributionSystem.Logging.Interfaces;
+using MusicDistributionSystem.Infrastructure.Configuration;
+using MusicDistributionSystem.Domain.Constants;
+using MusicDistributionSystem.Infrastructure.Persistence;
+using MusicDistributionSystem.Infrastructure.Logging;
 using MusicDistributionSystem.Middleware;
-using MusicDistributionSystem.Repositories;
-using MusicDistributionSystem.Repositories.Interfaces;
-using MusicDistributionSystem.Services;
-using MusicDistributionSystem.Services.Interfaces;
-using MusicDistributionSystem.Services.Security;
+using MusicDistributionSystem.Infrastructure.Notifications;
+using MusicDistributionSystem.Infrastructure.Persistence.Repositories;
+using MusicDistributionSystem.Infrastructure.Security;
+using MusicDistributionSystem.Application.Contracts.Repositories;
+using MusicDistributionSystem.Application.Services;
+using MusicDistributionSystem.Application.Contracts.Services;
+using MusicDistributionSystem.Application.Contracts.Security;
 using Serilog;
 using Serilog.Events;
 using Microsoft.Extensions.Logging;
@@ -194,3 +194,4 @@ static async Task<int> ExecuteScalarIntAsync(DbConnection connection, string com
     var result = await command.ExecuteScalarAsync();
     return result is null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
 }
+

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicDistributionSystem.DTOs.Admin;
-using MusicDistributionSystem.Services.Interfaces;
+using MusicDistributionSystem.Application.DTOs.Admin;
+using MusicDistributionSystem.Application.Contracts.Services;
 
 namespace MusicDistributionSystem.Controllers
 {
@@ -34,3 +34,4 @@ namespace MusicDistributionSystem.Controllers
         }
     }
 }
+

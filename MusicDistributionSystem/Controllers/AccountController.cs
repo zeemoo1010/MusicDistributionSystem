@@ -2,8 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using MusicDistributionSystem.DTOs.Account;
-using MusicDistributionSystem.Services.Interfaces;
+using MusicDistributionSystem.Application.DTOs.Account;
+using MusicDistributionSystem.Application.Contracts.Services;
 
 namespace MusicDistributionSystem.Controllers
 {
@@ -210,3 +210,4 @@ namespace MusicDistributionSystem.Controllers
         }
     }
 }
+

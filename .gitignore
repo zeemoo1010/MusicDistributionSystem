@@ -32,9 +32,14 @@ bld/
 [Oo]ut/
 [Ll]og/
 [Ll]ogs/
+bin-verify/
+obj-temp/
+obj-verify/
+obj-verify2/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
+inspect-migrations.cs
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 

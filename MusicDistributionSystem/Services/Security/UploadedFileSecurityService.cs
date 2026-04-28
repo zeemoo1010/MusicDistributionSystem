@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace MusicDistributionSystem.Services.Security
+namespace MusicDistributionSystem.Application.Contracts.Security
 {
     public class UploadedFileSecurityService : IUploadedFileSecurityService
     {
@@ -47,3 +47,4 @@ namespace MusicDistributionSystem.Services.Security
         }
     }
 }
+

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using MusicDistributionSystem.Enums;
+using MusicDistributionSystem.Domain.Enums;
 
-namespace MusicDistributionSystem.DTOs.Music
+namespace MusicDistributionSystem.Application.DTOs.Music
 {
     public class MusicUploadRequestDto
     {
@@ -32,3 +32,4 @@ namespace MusicDistributionSystem.DTOs.Music
         public IEnumerable<SelectListItem> Categories { get; set; } = Enumerable.Empty<SelectListItem>();
     }
 }
+
