@@ -65,6 +65,7 @@ namespace MusicDistributionSystem.Application.Services
                 Artist = track.Artist,
                 Description = track.Description,
                 CategoryName = track.Category?.Name,
+                CoverImagePath = track.CoverImagePath,
                 UploadedByName = track.UploadedByName,
                 AccessLevel = track.AccessLevel,
                 DownloadCount = track.DownloadCount,
@@ -99,16 +100,39 @@ namespace MusicDistributionSystem.Application.Services
                 };
             }
 
-            var extension = Path.GetExtension(request.MusicFile.FileName).ToLowerInvariant();
-            var uploadsRoot = Path.Combine(_environment.WebRootPath, "uploads", "music");
-            Directory.CreateDirectory(uploadsRoot);
+            var coverImageValidation = await _uploadedFileSecurityService.ValidateCoverImageAsync(request.CoverImage);
+            if (!coverImageValidation.IsValid)
+            {
+                return new MusicUploadResultDto
+                {
+                    ErrorMessage = coverImageValidation.ErrorMessage ?? "The uploaded cover image did not pass validation."
+                };
+            }
 
-            var storedFileName = $"{Guid.NewGuid():N}{extension}";
+            var uploadsRoot = Path.Combine(_environment.WebRootPath, "uploads", "music");
+            var coversRoot = Path.Combine(_environment.WebRootPath, "uploads", "covers");
+            Directory.CreateDirectory(uploadsRoot);
+            Directory.CreateDirectory(coversRoot);
+
+            var sanitizedAudioName = _uploadedFileSecurityService.SanitizeFileName(request.MusicFile.FileName);
+            var storedFileName = $"{Guid.NewGuid():N}-{sanitizedAudioName}";
             var fullPath = Path.Combine(uploadsRoot, storedFileName);
+            string? coverImageRelativePath = null;
 
             await using (var stream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             {
                 await request.MusicFile.CopyToAsync(stream);
+            }
+
+            if (request.CoverImage is not null)
+            {
+                var sanitizedCoverName = _uploadedFileSecurityService.SanitizeFileName(request.CoverImage.FileName);
+                var storedCoverName = $"{Guid.NewGuid():N}-{sanitizedCoverName}";
+                var coverPath = Path.Combine(coversRoot, storedCoverName);
+
+                await using var coverStream = new FileStream(coverPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                await request.CoverImage.CopyToAsync(coverStream);
+                coverImageRelativePath = Path.Combine("uploads", "covers", storedCoverName).Replace("\\", "/");
             }
 
             var track = new MusicTrack
@@ -121,7 +145,8 @@ namespace MusicDistributionSystem.Application.Services
                 UploadedByUserId = uploaderUserId,
                 UploadedByName = uploaderName.Trim(),
                 UploadedByEmail = uploaderEmail.Trim(),
-                OriginalFileName = Path.GetFileName(request.MusicFile.FileName),
+                OriginalFileName = sanitizedAudioName,
+                CoverImagePath = coverImageRelativePath,
                 FilePath = Path.Combine("uploads", "music", storedFileName).Replace("\\", "/"),
                 FileSizeBytes = request.MusicFile.Length,
                 ApprovalStatus = ApprovalStatus.Pending
@@ -211,6 +236,7 @@ namespace MusicDistributionSystem.Application.Services
                 Artist = track.Artist,
                 Description = track.Description,
                 CategoryName = track.Category?.Name,
+                CoverImagePath = track.CoverImagePath,
                 AccessLevel = track.AccessLevel,
                 DownloadCount = track.DownloadCount,
                 CreatedAt = track.CreatedAt,

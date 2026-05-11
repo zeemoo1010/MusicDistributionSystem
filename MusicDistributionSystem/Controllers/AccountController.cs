@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicDistributionSystem.Application.DTOs.Account;
 using MusicDistributionSystem.Application.Contracts.Services;
@@ -17,6 +18,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         public IActionResult Login()
         {
@@ -24,6 +26,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         public IActionResult AccessDenied()
         {
@@ -31,6 +34,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -56,6 +60,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         public IActionResult Register()
         {
@@ -63,6 +68,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -82,6 +88,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         public IActionResult VerifyEmail(string? email = null)
         {
@@ -92,6 +99,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> VerifyEmail(VerifyEmailRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -111,6 +119,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> ResendVerificationCode(string email)
         {
             var result = await _accountService.ResendVerificationCodeAsync(email);
@@ -122,6 +131,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         public IActionResult ForgotPassword()
         {
@@ -129,6 +139,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -142,6 +153,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         public IActionResult ResetPassword(string? email = null)
         {
@@ -152,6 +164,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -171,6 +184,7 @@ namespace MusicDistributionSystem.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -183,7 +197,9 @@ namespace MusicDistributionSystem.Controllers
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, result.UserId.ToString()),
-                new(ClaimTypes.Name, result.Username)
+                new(ClaimTypes.Name, result.Username),
+                new("UserId", result.UserId.ToString()),
+                new("Username", result.Username)
             };
 
             if (!string.IsNullOrWhiteSpace(result.Email))

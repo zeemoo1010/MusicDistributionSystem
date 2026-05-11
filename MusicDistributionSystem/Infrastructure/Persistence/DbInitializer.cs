@@ -72,9 +72,10 @@ namespace MusicDistributionSystem.Infrastructure.Persistence
                         Name = roleName,
                         Description = roleName switch
                         {
+                            RoleNames.SuperAdmin => "Full system access, including settings and platform ownership.",
                             RoleNames.Admin => "Full platform administration access.",
                             RoleNames.Moderator => "Review and moderate submitted content.",
-                            RoleNames.Uploader => "Upload and manage owned music releases.",
+                            RoleNames.Artist => "Upload and manage owned music releases.",
                             _ => "General registered account for authenticated listeners."
                         }
                     });
@@ -102,6 +103,16 @@ namespace MusicDistributionSystem.Infrastructure.Persistence
                     UserId = admin.Id,
                     RoleId = adminRole.Id
                 });
+
+                var superAdminRole = context.Roles.FirstOrDefault(role => role.Name == RoleNames.SuperAdmin);
+                if (superAdminRole is not null)
+                {
+                    context.UserRoles.Add(new UserRole
+                    {
+                        UserId = admin.Id,
+                        RoleId = superAdminRole.Id
+                    });
+                }
             }
 
             await context.SaveChangesAsync();

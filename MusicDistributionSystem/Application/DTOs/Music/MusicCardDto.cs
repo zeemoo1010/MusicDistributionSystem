@@ -9,6 +9,7 @@ namespace MusicDistributionSystem.Application.DTOs.Music
         public string Artist { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? CategoryName { get; set; }
+        public string? CoverImagePath { get; set; }
         public ContentAccessLevel AccessLevel { get; set; }
         public int DownloadCount { get; set; }
         public DateTime CreatedAt { get; set; }

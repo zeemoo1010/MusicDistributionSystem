@@ -63,7 +63,7 @@ namespace MusicDistributionSystem.Application.Services
             };
 
             await _userRepository.AddAsync(user);
-            var registeredUserRole = await _roleRepository.GetByNameAsync(RoleNames.RegisteredUser);
+            var registeredUserRole = await _roleRepository.GetByNameAsync(RoleNames.User);
             if (registeredUserRole is not null)
             {
                 await _userRepository.AddUserRoleAsync(new UserRole

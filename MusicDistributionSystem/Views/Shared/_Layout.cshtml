@@ -26,7 +26,7 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Music" asp-action="Index">Music</a>
                         </li>
-                        @if (User.IsInRole("Uploader") || User.IsInRole("Admin"))
+@if (User.IsInRole("Artist") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Music" asp-action="Upload">Upload</a>
@@ -38,13 +38,13 @@
                                 <a class="nav-link" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                             </li>
                         }
-                        @if (User.IsInRole("Moderator") || User.IsInRole("Admin"))
+                        @if (User.IsInRole("Moderator") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Moderation" asp-action="Index">Moderation</a>
                             </li>
                         }
-                        @if (User.IsInRole("Admin"))
+                        @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
@@ -58,7 +58,7 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <span class="nav-user">Hi, @User.Identity.Name</span>
-                            @if (User.IsInRole("Uploader") || User.IsInRole("Admin"))
+                            @if (User.IsInRole("Artist") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                             {
                                 <a class="btn btn-sm btn-brand" asp-area="" asp-controller="Music" asp-action="Upload">Submit Track</a>
                             }

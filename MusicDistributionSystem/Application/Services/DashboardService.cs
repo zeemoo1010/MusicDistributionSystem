@@ -47,6 +47,8 @@ namespace MusicDistributionSystem.Application.Services
                     CategoryName = track.Category?.Name,
                     ApprovalStatus = track.ApprovalStatus,
                     AccessLevel = track.AccessLevel,
+                    RejectionReason = track.RejectionReason,
+                    ReviewedAtUtc = track.ReviewedAtUtc,
                     CreatedAt = track.CreatedAt
                 }).ToArray()
             };
@@ -69,6 +71,15 @@ namespace MusicDistributionSystem.Application.Services
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
+            }
+
+            if (!string.IsNullOrWhiteSpace(track.CoverImagePath))
+            {
+                var coverPath = Path.Combine(_environment.WebRootPath, track.CoverImagePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+                if (File.Exists(coverPath))
+                {
+                    File.Delete(coverPath);
+                }
             }
 
             _musicRepository.Remove(track);

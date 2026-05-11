@@ -45,6 +45,12 @@
             <span asp-validation-for="MusicFile" class="text-danger"></span>
         </div>
 
+        <div class="col-md-6">
+            <label asp-for="CoverImage" class="form-label">Cover image</label>
+            <input asp-for="CoverImage" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" class="form-control" />
+            <span asp-validation-for="CoverImage" class="text-danger"></span>
+        </div>
+
         <div class="col-12">
             <label asp-for="Description" class="form-label"></label>
             <textarea asp-for="Description" rows="5" class="form-control"></textarea>
@@ -53,7 +59,7 @@
 
         <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
             <button class="btn btn-brand btn-lg" type="submit">Submit for approval</button>
-            <span class="text-muted">Allowed format: MP3. Maximum size: 20 MB. File content is validated before storage.</span>
+            <span class="text-muted">Allowed format: MP3 for audio, JPG/PNG for covers. File content and size are validated before storage.</span>
         </div>
     </form>
 </section>

@@ -1,13 +1,17 @@
 using Microsoft.AspNetCore.Http;
 using MusicDistributionSystem.Application.Contracts.Security;
+using System.Text.RegularExpressions;
 
 namespace MusicDistributionSystem.Infrastructure.Security
 {
     public class UploadedFileSecurityService : IUploadedFileSecurityService
     {
         private const long MaxMusicFileSizeBytes = 20 * 1024 * 1024;
+        private const long MaxCoverImageSizeBytes = 5 * 1024 * 1024;
         private static readonly string[] AllowedExtensions = [".mp3"];
         private static readonly string[] AllowedContentTypes = ["audio/mpeg", "audio/mp3", "application/octet-stream"];
+        private static readonly string[] AllowedImageExtensions = [".jpg", ".jpeg", ".png"];
+        private static readonly string[] AllowedImageContentTypes = ["image/jpeg", "image/png"];
 
         public async Task<(bool IsValid, string? ErrorMessage)> ValidateMusicFileAsync(IFormFile file, CancellationToken cancellationToken = default)
         {
@@ -45,6 +49,46 @@ namespace MusicDistributionSystem.Infrastructure.Security
             }
 
             return (true, null);
+        }
+
+        public Task<(bool IsValid, string? ErrorMessage)> ValidateCoverImageAsync(IFormFile? file, CancellationToken cancellationToken = default)
+        {
+            if (file is null)
+            {
+                return Task.FromResult<(bool IsValid, string? ErrorMessage)>((true, null));
+            }
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!AllowedImageExtensions.Contains(extension))
+            {
+                return Task.FromResult<(bool IsValid, string? ErrorMessage)>((false, "Only JPG and PNG cover images are allowed."));
+            }
+
+            if (file.Length == 0 || file.Length > MaxCoverImageSizeBytes)
+            {
+                return Task.FromResult<(bool IsValid, string? ErrorMessage)>((false, "Cover images must be between 1 byte and 5 MB."));
+            }
+
+            if (!AllowedImageContentTypes.Contains(file.ContentType))
+            {
+                return Task.FromResult<(bool IsValid, string? ErrorMessage)>((false, "The uploaded cover image content type is not allowed."));
+            }
+
+            return Task.FromResult<(bool IsValid, string? ErrorMessage)>((true, null));
+        }
+
+        public string SanitizeFileName(string fileName)
+        {
+            var baseName = Path.GetFileNameWithoutExtension(fileName);
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            var normalized = Regex.Replace(baseName, @"[^a-zA-Z0-9_-]+", "-").Trim('-');
+
+            if (string.IsNullOrWhiteSpace(normalized))
+            {
+                normalized = "file";
+            }
+
+            return $"{normalized}{extension}";
         }
     }
 }

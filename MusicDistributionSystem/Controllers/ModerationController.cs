@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MusicDistributionSystem.Application.DTOs.Moderation;
 using MusicDistributionSystem.Application.Contracts.Services;
 
 namespace MusicDistributionSystem.Controllers
@@ -24,15 +26,33 @@ namespace MusicDistributionSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Approve(Guid id)
         {
-            var result = await _moderationService.ApproveTrackAsync(id);
+            var reviewerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(reviewerUserId, out var parsedReviewerUserId))
+            {
+                return Forbid();
+            }
+
+            var result = await _moderationService.ApproveTrackAsync(id, parsedReviewerUserId);
             TempData["StatusMessage"] = result.Succeeded ? "Track approved successfully." : result.ErrorMessage;
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Reject(Guid id)
+        public async Task<IActionResult> Reject(RejectTrackRequestDto request)
         {
-            var result = await _moderationService.RejectTrackAsync(id);
+            if (!ModelState.IsValid)
+            {
+                TempData["StatusMessage"] = "A rejection reason is required.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var reviewerUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(reviewerUserId, out var parsedReviewerUserId))
+            {
+                return Forbid();
+            }
+
+            var result = await _moderationService.RejectTrackAsync(request, parsedReviewerUserId);
             TempData["StatusMessage"] = result.Succeeded ? "Track rejected successfully." : result.ErrorMessage;
             return RedirectToAction(nameof(Index));
         }

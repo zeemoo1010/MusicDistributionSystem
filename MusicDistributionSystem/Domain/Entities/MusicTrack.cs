@@ -24,6 +24,8 @@ namespace MusicDistributionSystem.Domain.Entities
         [Required]
         public string OriginalFileName { get; set; } = string.Empty;
 
+        public string? CoverImagePath { get; set; }
+
         public long FileSizeBytes { get; set; }
 
         public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
@@ -47,6 +49,14 @@ namespace MusicDistributionSystem.Domain.Entities
         [EmailAddress]
         [StringLength(150)]
         public string UploadedByEmail { get; set; } = string.Empty;
+
+        public Guid? ReviewedByUserId { get; set; }
+        public User? ReviewedByUser { get; set; }
+
+        public DateTime? ReviewedAtUtc { get; set; }
+
+        [StringLength(500)]
+        public string? RejectionReason { get; set; }
 
         public ICollection<DownloadRecord> Downloads { get; set; } = new List<DownloadRecord>();
     }

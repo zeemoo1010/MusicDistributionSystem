@@ -10,25 +10,107 @@
 </section>
 
 <div class="row g-4 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="stat-card">
             <span class="stat-value">@Model.TotalUsers</span>
             <span class="stat-label">Total users</span>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <span class="stat-value">@Model.TotalTracks</span>
+            <span class="stat-label">Total tracks</span>
+        </div>
+    </div>
+    <div class="col-md-3">
         <div class="stat-card">
             <span class="stat-value">@Model.PendingTracks</span>
             <span class="stat-label">Pending tracks</span>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="stat-card">
             <span class="stat-value">@Model.ApprovedTracks</span>
             <span class="stat-label">Approved tracks</span>
         </div>
     </div>
 </div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="stat-card">
+            <span class="stat-value">@Model.RejectedTracks</span>
+            <span class="stat-label">Rejected tracks</span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="stat-card">
+            <span class="stat-value">@Model.TotalCategories</span>
+            <span class="stat-label">Categories</span>
+        </div>
+    </div>
+</div>
+
+<section class="content-card mb-4">
+    <h2>Category management</h2>
+    <form asp-action="CreateCategory" method="post" class="row g-3 mt-1">
+        <div class="col-md-4">
+            <label class="form-label" for="create-category-name">Category name</label>
+            <input class="form-control" id="create-category-name" name="Name" required />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="create-category-description">Description</label>
+            <input class="form-control" id="create-category-description" name="Description" />
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-brand align-self-end" type="submit">Add category</button>
+        </div>
+    </form>
+
+    <div class="table-responsive mt-4">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Tracks</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in Model.Categories)
+                {
+                    <tr>
+                        <td>@category.Name</td>
+                        <td>@(string.IsNullOrWhiteSpace(category.Description) ? "No description" : category.Description)</td>
+                        <td>@category.LinkedTrackCount</td>
+                        <td>
+                            <form asp-action="UpdateCategory" method="post" class="row g-2">
+                                <input type="hidden" name="Id" value="@category.Id" />
+                                <div class="col-md-4">
+                                    <input class="form-control" name="Name" value="@category.Name" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control" name="Description" value="@category.Description" />
+                                </div>
+                                <div class="col-md-2 d-grid">
+                                    <button class="btn btn-sm btn-brand" type="submit">Save</button>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form asp-action="DeleteCategory" method="post">
+                                <input type="hidden" name="id" value="@category.Id" />
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
 
 <section class="content-card">
     <h2>User role management</h2>

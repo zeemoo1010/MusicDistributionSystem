@@ -12,6 +12,10 @@
 <section class="detail-hero">
     <div class="row g-4 align-items-start">
         <div class="col-lg-8">
+            @if (!string.IsNullOrWhiteSpace(Model.CoverImagePath))
+            {
+                <img src="~/@Model.CoverImagePath" alt="@Model.Title cover" class="img-fluid rounded-4 mb-4 w-100" style="max-height: 420px; object-fit: cover;" />
+            }
             <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                 <span class="eyebrow">@Model.CategoryName</span>
                 <span class="access-badge access-@Model.AccessLevel.ToString().ToLowerInvariant()">@Model.AccessLevel</span>

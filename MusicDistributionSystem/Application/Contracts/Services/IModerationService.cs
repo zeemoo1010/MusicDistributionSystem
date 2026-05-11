@@ -6,8 +6,8 @@ namespace MusicDistributionSystem.Application.Contracts.Services
     public interface IModerationService
     {
         Task<ModerationDashboardDto> GetDashboardAsync();
-        Task<OperationResultDto> ApproveTrackAsync(Guid trackId);
-        Task<OperationResultDto> RejectTrackAsync(Guid trackId);
+        Task<OperationResultDto> ApproveTrackAsync(Guid trackId, Guid reviewerUserId);
+        Task<OperationResultDto> RejectTrackAsync(RejectTrackRequestDto request, Guid reviewerUserId);
     }
 }
 

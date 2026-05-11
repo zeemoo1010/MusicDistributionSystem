@@ -50,6 +50,10 @@
         {
             <div class="col-md-6 col-xl-4">
                 <article class="content-card h-100">
+                    @if (!string.IsNullOrWhiteSpace(track.CoverImagePath))
+                    {
+                        <img src="~/@track.CoverImagePath" alt="@track.Title cover" class="img-fluid rounded-4 mb-3 w-100" style="aspect-ratio: 16 / 10; object-fit: cover;" />
+                    }
                     <div class="d-flex justify-content-between align-items-center gap-2">
                         <div class="content-meta">@track.CategoryName</div>
                         <span class="access-badge access-@track.AccessLevel.ToString().ToLowerInvariant()">@track.AccessLevel</span>

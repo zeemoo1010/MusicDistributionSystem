@@ -38,6 +38,7 @@
                         <th>Artist</th>
                         <th>Status</th>
                         <th>Access</th>
+                        <th>Review</th>
                         <th>Submitted</th>
                         <th>Action</th>
                     </tr>
@@ -50,6 +51,20 @@
                             <td>@upload.Artist</td>
                             <td>@upload.ApprovalStatus</td>
                             <td>@upload.AccessLevel</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(upload.RejectionReason))
+                                {
+                                    <div class="text-danger small fw-semibold">@upload.RejectionReason</div>
+                                }
+                                @if (upload.ReviewedAtUtc.HasValue)
+                                {
+                                    <div class="text-muted small">@upload.ReviewedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</div>
+                                }
+                                @if (string.IsNullOrWhiteSpace(upload.RejectionReason) && !upload.ReviewedAtUtc.HasValue)
+                                {
+                                    <span class="text-muted small">Awaiting review</span>
+                                }
+                            </td>
                             <td>@upload.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
                             <td>
                                 <form asp-action="DeleteUpload" method="post">

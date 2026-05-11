@@ -18,6 +18,8 @@ namespace MusicDistributionSystem.Application.DTOs.Dashboard
         public string? CategoryName { get; set; }
         public ApprovalStatus ApprovalStatus { get; set; }
         public ContentAccessLevel AccessLevel { get; set; }
+        public string? RejectionReason { get; set; }
+        public DateTime? ReviewedAtUtc { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

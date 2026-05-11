@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicDistributionSystem.Application.Contracts.Services;
+using MusicDistributionSystem.Domain.Constants;
 
 namespace MusicDistributionSystem.Controllers
 {
@@ -42,7 +43,8 @@ namespace MusicDistributionSystem.Controllers
                 return Forbid();
             }
 
-            var result = await _dashboardService.DeleteOwnUploadAsync(parsedUserId, id, User.IsInRole("Admin"));
+            var isPrivilegedUser = User.IsInRole(RoleNames.Admin) || User.IsInRole(RoleNames.SuperAdmin);
+            var result = await _dashboardService.DeleteOwnUploadAsync(parsedUserId, id, isPrivilegedUser);
             TempData["StatusMessage"] = result.Succeeded
                 ? "Upload deleted successfully."
                 : result.ErrorMessage ?? "Unable to delete upload.";

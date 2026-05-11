@@ -102,6 +102,12 @@ namespace MusicDistributionSystem.Infrastructure.Persistence
                 .WithMany(user => user.UploadedTracks)
                 .HasForeignKey(track => track.UploadedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MusicTrack>()
+                .HasOne(track => track.ReviewedByUser)
+                .WithMany()
+                .HasForeignKey(track => track.ReviewedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

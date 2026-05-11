@@ -29,6 +29,9 @@ namespace MusicDistributionSystem.Application.DTOs.Music
         [Display(Name = "MP3 file")]
         public IFormFile? MusicFile { get; set; }
 
+        [Display(Name = "Cover image")]
+        public IFormFile? CoverImage { get; set; }
+
         public IEnumerable<SelectListItem> Categories { get; set; } = Enumerable.Empty<SelectListItem>();
     }
 }

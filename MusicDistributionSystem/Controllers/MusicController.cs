@@ -102,6 +102,7 @@ namespace MusicDistributionSystem.Controllers
             destination.CategoryId = source.CategoryId;
             destination.AccessLevel = source.AccessLevel;
             destination.MusicFile = source.MusicFile;
+            destination.CoverImage = source.CoverImage;
         }
     }
 }

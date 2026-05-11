@@ -102,9 +102,19 @@ namespace MusicDistributionSystem.Infrastructure.Persistence.Repositories
                 .ToListAsync();
         }
 
+        public Task<int> CountAllAsync()
+        {
+            return _context.MusicTracks.CountAsync();
+        }
+
         public Task<int> CountApprovedAsync()
         {
             return _context.MusicTracks.CountAsync(track => track.ApprovalStatus == ApprovalStatus.Approved);
+        }
+
+        public Task<int> CountRejectedAsync()
+        {
+            return _context.MusicTracks.CountAsync(track => track.ApprovalStatus == ApprovalStatus.Rejected);
         }
 
         public Task<int> CountPremiumApprovedAsync()

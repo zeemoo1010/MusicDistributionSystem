@@ -16,18 +16,25 @@
         {
             <div class="col-xl-6">
                 <article class="content-card h-100">
+                    @if (!string.IsNullOrWhiteSpace(track.CoverImagePath))
+                    {
+                        <img src="~/@track.CoverImagePath" alt="@track.Title cover" class="img-fluid rounded-4 mb-3 w-100" style="aspect-ratio: 16 / 10; object-fit: cover;" />
+                    }
                     <div class="content-meta">@track.CategoryName</div>
                     <h2>@track.Title</h2>
                     <p class="artist-name">@track.Artist</p>
+                    <p class="text-muted">@(string.IsNullOrWhiteSpace(track.Description) ? "No description provided." : track.Description)</p>
                     <p class="text-muted mb-2">Submitted by @track.UploadedByName (@track.UploadedByEmail)</p>
                     <p class="text-muted mb-3">Submitted @track.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</p>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-column gap-3">
                         <form asp-action="Approve" method="post">
                             <input type="hidden" name="id" value="@track.Id" />
                             <button class="btn btn-brand" type="submit">Approve</button>
                         </form>
-                        <form asp-action="Reject" method="post">
-                            <input type="hidden" name="id" value="@track.Id" />
+                        <form asp-action="Reject" method="post" class="d-flex flex-column gap-2">
+                            <input type="hidden" name="TrackId" value="@track.Id" />
+                            <label class="form-label mb-0" for="reason-@track.Id">Rejection reason</label>
+                            <textarea class="form-control" id="reason-@track.Id" name="Reason" rows="3" placeholder="Explain why this track was rejected." required></textarea>
                             <button class="btn btn-outline-danger" type="submit">Reject</button>
                         </form>
                     </div>

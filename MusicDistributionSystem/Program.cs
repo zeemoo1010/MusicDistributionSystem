@@ -47,6 +47,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Account/AccessDenied";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
     });
 
 builder.Services.AddMemoryCache();
@@ -56,9 +60,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole(RoleNames.Admin));
-    options.AddPolicy("CanModerateContent", policy => policy.RequireRole(RoleNames.Admin, RoleNames.Moderator));
-    options.AddPolicy("CanUploadContent", policy => policy.RequireRole(RoleNames.Admin, RoleNames.Uploader));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole(RoleNames.SuperAdmin, RoleNames.Admin));
+    options.AddPolicy("CanModerateContent", policy => policy.RequireRole(RoleNames.SuperAdmin, RoleNames.Admin, RoleNames.Moderator));
+    options.AddPolicy("CanUploadContent", policy => policy.RequireRole(RoleNames.SuperAdmin, RoleNames.Admin, RoleNames.Artist));
 });
 
 builder.Services.AddSingleton<IAppLogger, FileAppLogger>();

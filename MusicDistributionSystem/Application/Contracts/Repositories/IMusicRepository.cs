@@ -10,7 +10,9 @@ namespace MusicDistributionSystem.Application.Contracts.Repositories
         Task<MusicTrack?> GetByIdAsync(Guid id, bool asNoTracking = true);
         Task<IReadOnlyCollection<MusicTrack>> GetPendingTracksAsync();
         Task<IReadOnlyCollection<MusicTrack>> GetTracksByUploaderAsync(Guid uploaderUserId);
+        Task<int> CountAllAsync();
         Task<int> CountApprovedAsync();
+        Task<int> CountRejectedAsync();
         Task<int> CountPremiumApprovedAsync();
         Task<int> GetTotalDownloadsAsync();
         Task AddAsync(MusicTrack track);
