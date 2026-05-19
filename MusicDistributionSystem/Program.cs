@@ -1,22 +1,21 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Data.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MusicDistributionSystem.Infrastructure.Configuration;
+using MusicDistributionSystem.Application.Contracts.Repositories;
+using MusicDistributionSystem.Application.Contracts.Security;
+using MusicDistributionSystem.Application.Contracts.Services;
+using MusicDistributionSystem.Application.Services;
 using MusicDistributionSystem.Domain.Constants;
-using MusicDistributionSystem.Infrastructure.Persistence;
+using MusicDistributionSystem.Infrastructure.Configuration;
 using MusicDistributionSystem.Infrastructure.Logging;
-using MusicDistributionSystem.Middleware;
 using MusicDistributionSystem.Infrastructure.Notifications;
+using MusicDistributionSystem.Infrastructure.Persistence;
 using MusicDistributionSystem.Infrastructure.Persistence.Repositories;
 using MusicDistributionSystem.Infrastructure.Security;
-using MusicDistributionSystem.Application.Contracts.Repositories;
-using MusicDistributionSystem.Application.Services;
-using MusicDistributionSystem.Application.Contracts.Services;
-using MusicDistributionSystem.Application.Contracts.Security;
+using MusicDistributionSystem.Middleware;
 using Serilog;
 using Serilog.Events;
-using Microsoft.Extensions.Logging;
+using System.Data.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
