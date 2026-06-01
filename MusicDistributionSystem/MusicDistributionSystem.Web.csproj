@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MusicDistributionSystem.Application\MusicDistributionSystem.Application.csproj" />
+    <ProjectReference Include="..\MusicDistributionSystem.Domain\MusicDistributionSystem.Domain.csproj" />
+    <ProjectReference Include="..\MusicDistributionSystem.Infrastructure\MusicDistributionSystem.Infrastructure.csproj" />
+    <ProjectReference Include="..\MusicDistributionSystem.Persistence\MusicDistributionSystem.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Ensure the Web project does not compile sources that belong to other projects in the solution -->
+    <Compile Remove="Domain\**\*.cs" />
+    <Compile Remove="Application\**\*.cs" />
+    <Compile Remove="Infrastructure\**\*.cs" />
+    <Compile Remove="Persistence\**\*.cs" />
+    <!-- Ensure the Web project does not compile sources that belong to other projects in the solution -->
+    <Compile Remove="Domain\**\*.cs" />
+    <Compile Remove="Application\**\*.cs" />
+    <Compile Remove="Infrastructure\**\*.cs" />
+    <Compile Remove="Persistence\**\*.cs" />
+    <Compile Remove="Models\**\*.cs" />
+    <Compile Remove="Enums\**\*.cs" />
+    <Compile Remove="Constants\**\*.cs" />
+    <Compile Remove="Configuration\**\*.cs" />
+    <Compile Remove="DTOs\**\*.cs" />
+    <Compile Remove="Repositories\**\*.cs" />
+    <Compile Remove="Services\**\*.cs" />
+    <Compile Remove="Data\**\*.cs" />
+    <Compile Remove="DbContext\**\*.cs" />
+    <Compile Remove="Logging\**\*.cs" />
+    <Compile Remove="obj\**\*.cs" />
+    <Compile Remove="obj-temp\**\*.cs" />
+    <Compile Remove="obj-verify\**\*.cs" />
+    <Compile Remove="obj-verify2\**\*.cs" />
+    <Compile Remove="bin-verify\**\*.cs" />
+    <Content Remove="obj-temp\**" />
+    <Content Remove="obj-verify\**" />
+    <Content Remove="obj-verify2\**" />
+    <Content Remove="bin-verify\**" />
+    <EmbeddedResource Remove="obj-temp\**" />
+    <EmbeddedResource Remove="obj-verify\**" />
+    <EmbeddedResource Remove="obj-verify2\**" />
+    <EmbeddedResource Remove="bin-verify\**" />
+    <None Remove="obj-temp\**" />
+    <None Remove="obj-verify\**" />
+    <None Remove="obj-verify2\**" />
+    <None Remove="bin-verify\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\covers\" />
+    <Folder Include="wwwroot\uploads\music\" />
+  </ItemGroup>
+
+</Project>

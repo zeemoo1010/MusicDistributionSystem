@@ -3,7 +3,7 @@ using MusicDistributionSystem.Domain.Enums;
 using MusicDistributionSystem.Domain.Entities;
 using MusicDistributionSystem.Application.Contracts.Repositories;
 
-namespace MusicDistributionSystem.Infrastructure.Persistence.Repositories
+namespace MusicDistributionSystem.Persistence.Repositories
 {
     public class MusicRepository : IMusicRepository
     {

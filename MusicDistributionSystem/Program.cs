@@ -1,17 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MusicDistributionSystem.Application.Contracts.Repositories;
-using MusicDistributionSystem.Application.Contracts.Security;
-using MusicDistributionSystem.Application.Contracts.Services;
-using MusicDistributionSystem.Application.Services;
+using MusicDistributionSystem.Application;
 using MusicDistributionSystem.Domain.Constants;
+using MusicDistributionSystem.Domain.Contracts.Security;
+using MusicDistributionSystem.Infrastructure;
 using MusicDistributionSystem.Infrastructure.Configuration;
-using MusicDistributionSystem.Infrastructure.Logging;
-using MusicDistributionSystem.Infrastructure.Notifications;
-using MusicDistributionSystem.Infrastructure.Persistence;
-using MusicDistributionSystem.Infrastructure.Persistence.Repositories;
-using MusicDistributionSystem.Infrastructure.Security;
+using MusicDistributionSystem.Infrastructure.Data;
+using MusicDistributionSystem.Infrastructure.EntityFrameworkCore;
 using MusicDistributionSystem.Middleware;
 using Serilog;
 using Serilog.Events;
@@ -53,34 +49,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddMemoryCache();
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-builder.Services.Configure<DefaultAdminSettings>(builder.Configuration.GetSection("DefaultAdmin"));
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(
+    builder.Configuration.GetConnectionString("DefaultConnection")!,
+    builder.Configuration);
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole(RoleNames.SuperAdmin, RoleNames.Admin));
     options.AddPolicy("CanModerateContent", policy => policy.RequireRole(RoleNames.SuperAdmin, RoleNames.Admin, RoleNames.Moderator));
     options.AddPolicy("CanUploadContent", policy => policy.RequireRole(RoleNames.SuperAdmin, RoleNames.Admin, RoleNames.Artist));
 });
-
-builder.Services.AddSingleton<IAppLogger, FileAppLogger>();
-builder.Services.AddScoped<IUploadedFileSecurityService, UploadedFileSecurityService>();
-builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
-builder.Services.AddScoped<IAccountNotificationService, AccountNotificationService>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>();
-builder.Services.AddScoped<IMusicRepository, MusicRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IAccountTokenRepository, AccountTokenRepository>();
-builder.Services.AddScoped<IHomeService, HomeService>();
-builder.Services.AddScoped<IMusicService, MusicService>();
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IAdministrationService, AdministrationService>();
-builder.Services.AddScoped<IModerationService, ModerationService>();
-builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 var app = builder.Build();
 

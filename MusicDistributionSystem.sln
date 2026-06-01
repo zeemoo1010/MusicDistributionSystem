@@ -3,7 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36930.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem", "MusicDistributionSystem\MusicDistributionSystem.csproj", "{BD544C48-6C40-4C1E-B7F8-27EA5B525BD3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem.Web", "MusicDistributionSystem\MusicDistributionSystem.Web.csproj", "{BD544C48-6C40-4C1E-B7F8-27EA5B525BD3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem.Domain", "MusicDistributionSystem.Domain\MusicDistributionSystem.Domain.csproj", "{DD569D7B-82A0-4E71-A25C-DEBE94251099}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem.Application", "MusicDistributionSystem.Application\MusicDistributionSystem.Application.csproj", "{91A5FBA3-A09D-4910-B2C3-9124C6657292}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem.Infrastructure", "MusicDistributionSystem.Infrastructure\MusicDistributionSystem.Infrastructure.csproj", "{1A939FEE-0B81-4CE1-AB0C-0359B0523705}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem.Persistence", "MusicDistributionSystem.Persistence\MusicDistributionSystem.Persistence.csproj", "{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +23,22 @@ Global
 		{BD544C48-6C40-4C1E-B7F8-27EA5B525BD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD544C48-6C40-4C1E-B7F8-27EA5B525BD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD544C48-6C40-4C1E-B7F8-27EA5B525BD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD569D7B-82A0-4E71-A25C-DEBE94251099}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD569D7B-82A0-4E71-A25C-DEBE94251099}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD569D7B-82A0-4E71-A25C-DEBE94251099}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD569D7B-82A0-4E71-A25C-DEBE94251099}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91A5FBA3-A09D-4910-B2C3-9124C6657292}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91A5FBA3-A09D-4910-B2C3-9124C6657292}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91A5FBA3-A09D-4910-B2C3-9124C6657292}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91A5FBA3-A09D-4910-B2C3-9124C6657292}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A939FEE-0B81-4CE1-AB0C-0359B0523705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A939FEE-0B81-4CE1-AB0C-0359B0523705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A939FEE-0B81-4CE1-AB0C-0359B0523705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A939FEE-0B81-4CE1-AB0C-0359B0523705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

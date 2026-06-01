@@ -4,7 +4,7 @@ using MusicDistributionSystem.Domain.Enums;
 using MusicDistributionSystem.Domain.Entities;
 using MusicDistributionSystem.Application.Contracts.Security;
 
-namespace MusicDistributionSystem.Infrastructure.Persistence
+namespace MusicDistributionSystem.Persistence
 {
     public static class DbInitializer
     {

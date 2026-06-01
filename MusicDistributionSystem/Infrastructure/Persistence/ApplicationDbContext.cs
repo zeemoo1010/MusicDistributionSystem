@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MusicDistributionSystem.Domain.Enums;
 using MusicDistributionSystem.Domain.Entities;
 
-namespace MusicDistributionSystem.Infrastructure.Persistence
+namespace MusicDistributionSystem.Persistence
 {
     public class ApplicationDbContext : DbContext
     {
