@@ -50,24 +50,43 @@ namespace MusicDistributionSystem.Infrastructure.Notifications
 
         private async Task SendEmailAsync(string destination, string subject, string htmlBody)
         {
-            using var message = new MailMessage
+            if (string.IsNullOrWhiteSpace(_emailSettings.SenderEmail) ||
+                string.IsNullOrWhiteSpace(_emailSettings.Username) ||
+                string.IsNullOrWhiteSpace(_emailSettings.Password))
             {
-                From = new MailAddress(_emailSettings.SenderEmail, _emailSettings.SenderName),
-                Subject = subject,
-                Body = htmlBody,
-                IsBodyHtml = true
-            };
+                await _appLogger.LogWarningAsync("AccountNotification",
+                    $"SMTP not configured. Would send to '{destination}' with subject '{subject}'. " +
+                    "Set EmailSettings:Password via User Secrets.");
+                return;
+            }
 
-            message.To.Add(destination);
-
-            using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
+            try
             {
-                EnableSsl = _emailSettings.EnableSsl,
-                Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password)
-            };
+                using var message = new MailMessage
+                {
+                    From = new MailAddress(_emailSettings.SenderEmail, _emailSettings.SenderName),
+                    Subject = subject,
+                    Body = htmlBody,
+                    IsBodyHtml = true
+                };
 
-            await client.SendMailAsync(message);
-            await _appLogger.LogInformationAsync("AccountNotification", $"Email notification sent to '{destination}' with subject '{subject}'.");
+                message.To.Add(destination);
+
+                using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
+                {
+                    EnableSsl = _emailSettings.EnableSsl,
+                    Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password)
+                };
+
+                await client.SendMailAsync(message);
+                await _appLogger.LogInformationAsync("AccountNotification",
+                    $"Email sent to '{destination}' with subject '{subject}'.");
+            }
+            catch (Exception ex)
+            {
+                await _appLogger.LogErrorAsync("AccountNotification",
+                    $"Failed to send email to '{destination}' with subject '{subject}': {ex.Message}", ex);
+            }
         }
     }
 }

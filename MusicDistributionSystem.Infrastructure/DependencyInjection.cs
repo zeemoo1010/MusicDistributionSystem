@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MusicDistributionSystem.Application.Contracts.Payments;
 using MusicDistributionSystem.Application.Contracts.Services;
 using MusicDistributionSystem.Domain.Contracts.Interface;
 using MusicDistributionSystem.Domain.Contracts.Logging;
@@ -11,6 +12,7 @@ using MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositories;
 using MusicDistributionSystem.Infrastructure.Logging;
 using MusicDistributionSystem.Infrastructure.Notifications;
 using MusicDistributionSystem.Infrastructure.Security;
+using MusicDistributionSystem.Infrastructure.Services;
 
 namespace MusicDistributionSystem.Infrastructure
 {
@@ -21,13 +23,11 @@ namespace MusicDistributionSystem.Infrastructure
             string connectionString,
             IConfiguration configuration)
         {
-            services.Configure<EmailSettings>(
-                configuration.GetSection("EmailSettings"));
+            services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+            services.Configure<DefaultAdminSettings>(configuration.GetSection("DefaultAdmin"));
+            services.Configure<PaystackSettings>(configuration.GetSection("Paystack"));
 
-            services.Configure<DefaultAdminSettings>(
-                configuration.GetSection("DefaultAdmin"));
-
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContextPool<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
             services.AddScoped<IUploadedFileSecurityService, UploadedFileSecurityService>();
@@ -41,6 +41,23 @@ namespace MusicDistributionSystem.Infrastructure
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IAccountTokenRepository, AccountTokenRepository>();
 
+            // New entity repositories
+            services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<ILikeRepository, LikeRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<ITagRepository, TagRepository>();
+            services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+            services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+
+            services.AddHttpClient("Paystack", client =>
+            {
+                client.BaseAddress = new Uri("https://api.paystack.co");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            services.AddScoped<IPaymentGateway, PaystackGateway>();
+            services.AddScoped<IPaymentService, PaystackService>();
             services.AddSingleton<IAppLogger, FileAppLogger>();
 
             return services;

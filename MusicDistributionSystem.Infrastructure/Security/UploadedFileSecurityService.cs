@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using MusicDistributionSystem.Domain.Contracts.Security;
-using System.Text.RegularExpressions;
 
 namespace MusicDistributionSystem.Infrastructure.Security
 {
@@ -9,7 +8,7 @@ namespace MusicDistributionSystem.Infrastructure.Security
         private const long MaxMusicFileSizeBytes = 20 * 1024 * 1024;
         private const long MaxCoverImageSizeBytes = 5 * 1024 * 1024;
         private static readonly string[] AllowedExtensions = [".mp3"];
-        private static readonly string[] AllowedContentTypes = ["audio/mpeg", "audio/mp3", "application/octet-stream"];
+        private static readonly string[] AllowedContentTypes = ["audio/mpeg", "audio/mp3"];
         private static readonly string[] AllowedImageExtensions = [".jpg", ".jpeg", ".png"];
         private static readonly string[] AllowedImageContentTypes = ["image/jpeg", "image/png"];
 
@@ -81,16 +80,29 @@ namespace MusicDistributionSystem.Infrastructure.Security
         {
             var baseName = Path.GetFileNameWithoutExtension(fileName);
             var extension = Path.GetExtension(fileName).ToLowerInvariant();
-            var normalized = Regex.Replace(baseName, @"[^a-zA-Z0-9_-]+", "-").Trim('-');
+
+            // Remove any characters that are invalid in Windows/Linux filenames
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var sanitized = string.Concat(baseName
+                .Select(c => invalidChars.Contains(c) ? '-' : c))
+                .TrimEnd('.');
+
+            // Replace sequences of dashes/underscores with single dash
+            var normalized = System.Text.RegularExpressions.Regex.Replace(sanitized, @"[-_]{2,}", "-").Trim('-');
 
             if (string.IsNullOrWhiteSpace(normalized))
             {
                 normalized = "file";
             }
 
-            return $"{normalized}{extension}";
+            // Ensure the full filename doesn't attempt path traversal
+            var fullName = $"{normalized}{extension}";
+            if (fullName.Contains("..") || fullName.Contains('/') || fullName.Contains('\\'))
+            {
+                fullName = $"file{extension}";
+            }
+
+            return fullName;
         }
     }
 }
-
-

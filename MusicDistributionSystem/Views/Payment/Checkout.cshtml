@@ -22,14 +22,25 @@
         </div>
 
         <div class="tier-note mt-4">
-            Payment gateway integration is the next step. This page is now the redirect target for Premium, Gold, and future subscription plans.
+            You will be redirected to Paystack's secure payment page to complete your subscription. We do not store your card details.
         </div>
 
-        <div class="d-flex flex-wrap gap-3 mt-4">
-            <button class="btn btn-brand btn-lg" type="button">Proceed to payment</button>
-            <a class="btn btn-outline-dark btn-lg" asp-controller="Home" asp-action="Index">Back to plans</a>
-        </div>
+        @if (Model.MonthlyPrice > 0)
+        {
+            <form asp-action="Initialize" asp-controller="Payment" method="post">
+                <input type="hidden" name="planId" value="@Model.PlanId" />
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <button class="btn btn-brand btn-lg" type="submit">Proceed to Paystack</button>
+                    <a class="btn btn-outline-dark btn-lg" asp-controller="Home" asp-action="Index">Back to plans</a>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="mt-4">
+                <p class="text-success">This plan is free. No payment required.</p>
+                <a class="btn btn-brand btn-lg" asp-controller="Home" asp-action="Index">Start for free</a>
+            </div>
+        }
     </div>
 </section>
-
-

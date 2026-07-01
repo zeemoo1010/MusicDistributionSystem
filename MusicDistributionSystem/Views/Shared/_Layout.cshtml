@@ -3,17 +3,25 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MusicDistributionSystem</title>
+    <title>@ViewData["Title"] - SoundSphere</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MusicDistributionSystem.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
     <header class="site-header">
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
-                <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">SoundSphere</a>
+                <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index"><img src="~/favicon.ico" alt="" width="24" height="24" class="me-1" style="filter:brightness(10)"> SoundSphere</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -76,12 +84,9 @@
             </div>
         </nav>
     </header>
+
     <div class="container page-shell">
         <main role="main" class="pb-5">
-            @if (TempData["StatusMessage"] is string layoutMessage)
-            {
-                <div class="alert alert-info shadow-sm">@layoutMessage</div>
-            }
             @RenderBody()
         </main>
     </div>
@@ -91,11 +96,34 @@
             &copy; 2026 - SoundSphere. Built with ASP.NET MVC for secure music distribution.
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Convert TempData messages to toast notifications
+        @if (TempData["SuccessMessage"] is string successMsg)
+        {
+            <text>Toast.success("@successMsg");</text>
+        }
+        @if (TempData["ErrorMessage"] is string errorMsg)
+        {
+            <text>Toast.error("@errorMsg");</text>
+        }
+        @if (TempData["InfoMessage"] is string infoMsg)
+        {
+            <text>Toast.info("@infoMsg");</text>
+        }
+        @if (TempData["WarningMessage"] is string warningMsg)
+        {
+            <text>Toast.warning("@warningMsg");</text>
+        }
+        // Also handle legacy StatusMessage
+        @if (TempData["StatusMessage"] is string statusMsg)
+        {
+            <text>Toast.info("@statusMsg");</text>
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
-

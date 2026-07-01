@@ -6,6 +6,7 @@ namespace MusicDistributionSystem.Domain.Contracts.Interface
     {
         Task<IReadOnlyCollection<Category>> GetAllAsync();
         Task<Category?> GetByIdAsync(Guid id);
+        Task<Category?> GetByIdWithTracksAsync(Guid id);
         Task<Category?> GetByNameAsync(string name);
         Task AddAsync(Category category);
         void Remove(Category category);
@@ -13,4 +14,3 @@ namespace MusicDistributionSystem.Domain.Contracts.Interface
         Task SaveChangesAsync();
     }
 }
-

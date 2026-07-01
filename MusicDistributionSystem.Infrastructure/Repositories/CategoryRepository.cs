@@ -16,7 +16,6 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
         public async Task<IReadOnlyCollection<Category>> GetAllAsync()
         {
             return await _context.Categories
-                .Include(category => category.MusicTracks)
                 .AsNoTracking()
                 .OrderBy(category => category.Name)
                 .ToListAsync();
@@ -25,7 +24,16 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
         public Task<Category?> GetByIdAsync(Guid id)
         {
             return _context.Categories
-                .Include(category => category.MusicTracks)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(category => category.Id == id);
+        }
+
+        public Task<Category?> GetByIdWithTracksAsync(Guid id)
+        {
+            return _context.Categories
+                .AsNoTracking()
+                .Include(c => c.MusicTracks)
+                .Include(c => c.MediaAssets)
                 .FirstOrDefaultAsync(category => category.Id == id);
         }
 

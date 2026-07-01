@@ -185,7 +185,7 @@ namespace MusicDistributionSystem.Application.Services
                 };
             }
 
-            var fullPath = Path.Combine(_environment.WebRootPath, track.FilePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+            var fullPath = GetSafeFilePath(_environment.WebRootPath, track.FilePath);
             if (!System.IO.File.Exists(fullPath))
             {
                 return new MusicDownloadResultDto
@@ -214,6 +214,19 @@ namespace MusicDistributionSystem.Application.Services
                 FilePath = fullPath,
                 OriginalFileName = track.OriginalFileName
             };
+        }
+
+        private static string GetSafeFilePath(string webRootPath, string relativePath)
+        {
+            var uploadsRoot = Path.GetFullPath(Path.Combine(webRootPath, "uploads"));
+            var fullPath = Path.GetFullPath(Path.Combine(webRootPath, relativePath.Replace("/", Path.DirectorySeparatorChar.ToString())));
+
+            if (!fullPath.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Invalid file path — attempted path traversal.");
+            }
+
+            return fullPath;
         }
 
         private async Task PopulateCategoriesAsync(MusicUploadRequestDto request)

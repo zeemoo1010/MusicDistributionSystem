@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MusicDistributionSystem.Domain.Common;
 using MusicDistributionSystem.Domain.Contracts.Interface;
 using MusicDistributionSystem.Domain.Entities;
 using MusicDistributionSystem.Domain.Enums;
@@ -9,35 +10,18 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
     {
         private readonly ApplicationDbContext _context;
 
-        public MusicRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public MusicRepository(ApplicationDbContext context) => _context = context;
 
         public async Task<IReadOnlyCollection<MusicTrack>> GetApprovedTracksAsync(string? searchTerm, Guid? categoryId)
         {
-            var query = _context.MusicTracks
-                .AsNoTracking()
-                .Include(track => track.Category)
-                .Where(track => track.ApprovalStatus == ApprovalStatus.Approved);
+            var query = BuildApprovedQuery(searchTerm, categoryId);
+            return await query.ToListAsync();
+        }
 
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                query = query.Where(track =>
-                    track.Title.Contains(searchTerm) ||
-                    track.Artist.Contains(searchTerm) ||
-                    (track.Description != null && track.Description.Contains(searchTerm)));
-            }
-
-            if (categoryId.HasValue)
-            {
-                query = query.Where(track => track.CategoryId == categoryId.Value);
-            }
-
-            return await query
-                .OrderByDescending(track => track.IsFeatured)
-                .ThenByDescending(track => track.CreatedAt)
-                .ToListAsync();
+        public async Task<PaginatedResult<MusicTrack>> GetApprovedTracksPagedAsync(string? searchTerm, Guid? categoryId, int page, int pageSize)
+        {
+            var query = BuildApprovedQuery(searchTerm, categoryId);
+            return await ToPaginatedAsync(query, page, pageSize);
         }
 
         public async Task<IReadOnlyCollection<MusicTrack>> GetLatestApprovedTracksAsync(int take)
@@ -58,11 +42,7 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
                 .Include(track => track.Category)
                 .Where(track => track.Id == id && track.ApprovalStatus == ApprovalStatus.Approved);
 
-            if (asNoTracking)
-            {
-                query = query.AsNoTracking();
-            }
-
+            if (asNoTracking) query = query.AsNoTracking();
             return await query.FirstOrDefaultAsync();
         }
 
@@ -73,11 +53,7 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
                 .Include(track => track.UploadedByUser)
                 .Where(track => track.Id == id);
 
-            if (asNoTracking)
-            {
-                query = query.AsNoTracking();
-            }
-
+            if (asNoTracking) query = query.AsNoTracking();
             return await query.FirstOrDefaultAsync();
         }
 
@@ -92,6 +68,18 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
                 .ToListAsync();
         }
 
+        public async Task<PaginatedResult<MusicTrack>> GetPendingTracksPagedAsync(int page, int pageSize)
+        {
+            var query = _context.MusicTracks
+                .AsNoTracking()
+                .Include(track => track.Category)
+                .Include(track => track.UploadedByUser)
+                .Where(track => track.ApprovalStatus == ApprovalStatus.Pending)
+                .OrderBy(track => track.CreatedAt);
+
+            return await ToPaginatedAsync(query, page, pageSize);
+        }
+
         public async Task<IReadOnlyCollection<MusicTrack>> GetTracksByUploaderAsync(Guid uploaderUserId)
         {
             return await _context.MusicTracks
@@ -102,51 +90,61 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
                 .ToListAsync();
         }
 
-        public Task<int> CountAllAsync()
+        public async Task<PaginatedResult<MusicTrack>> GetTracksByUploaderPagedAsync(Guid uploaderUserId, int page, int pageSize)
         {
-            return _context.MusicTracks.CountAsync();
+            var query = _context.MusicTracks
+                .AsNoTracking()
+                .Include(track => track.Category)
+                .Where(track => track.UploadedByUserId == uploaderUserId)
+                .OrderByDescending(track => track.CreatedAt);
+
+            return await ToPaginatedAsync(query, page, pageSize);
         }
 
-        public Task<int> CountApprovedAsync()
+        public Task<int> CountAllAsync() => _context.MusicTracks.CountAsync();
+        public Task<int> CountApprovedAsync() => _context.MusicTracks.CountAsync(t => t.ApprovalStatus == ApprovalStatus.Approved);
+        public Task<int> CountRejectedAsync() => _context.MusicTracks.CountAsync(t => t.ApprovalStatus == ApprovalStatus.Rejected);
+
+        public Task<int> CountPremiumApprovedAsync() => _context.MusicTracks.CountAsync(t =>
+            t.ApprovalStatus == ApprovalStatus.Approved && t.AccessLevel != ContentAccessLevel.Free);
+
+        public async Task<int> GetTotalDownloadsAsync() => await _context.MusicTracks.SumAsync(t => (int?)t.DownloadCount) ?? 0;
+
+        public async Task AddAsync(MusicTrack track) => await _context.MusicTracks.AddAsync(track);
+        public void Remove(MusicTrack track) => _context.MusicTracks.Remove(track);
+        public async Task AddDownloadRecordAsync(DownloadRecord downloadRecord) => await _context.DownloadRecords.AddAsync(downloadRecord);
+        public Task SaveChangesAsync() => _context.SaveChangesAsync();
+
+        private IQueryable<MusicTrack> BuildApprovedQuery(string? searchTerm, Guid? categoryId)
         {
-            return _context.MusicTracks.CountAsync(track => track.ApprovalStatus == ApprovalStatus.Approved);
+            var query = _context.MusicTracks
+                .AsNoTracking()
+                .Include(t => t.Category)
+                .Where(t => t.ApprovalStatus == ApprovalStatus.Approved);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+                query = query.Where(t =>
+                    t.Title.Contains(searchTerm) || t.Artist.Contains(searchTerm) ||
+                    (t.Description != null && t.Description.Contains(searchTerm)));
+
+            if (categoryId.HasValue)
+                query = query.Where(t => t.CategoryId == categoryId.Value);
+
+            return query.OrderByDescending(t => t.IsFeatured).ThenByDescending(t => t.CreatedAt);
         }
 
-        public Task<int> CountRejectedAsync()
+        private static async Task<PaginatedResult<T>> ToPaginatedAsync<T>(IQueryable<T> query, int page, int pageSize)
         {
-            return _context.MusicTracks.CountAsync(track => track.ApprovalStatus == ApprovalStatus.Rejected);
-        }
+            var totalCount = await query.CountAsync();
+            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-        public Task<int> CountPremiumApprovedAsync()
-        {
-            return _context.MusicTracks.CountAsync(track =>
-                track.ApprovalStatus == ApprovalStatus.Approved &&
-                track.AccessLevel != ContentAccessLevel.Free);
-        }
-
-        public async Task<int> GetTotalDownloadsAsync()
-        {
-            return await _context.MusicTracks.SumAsync(track => (int?)track.DownloadCount) ?? 0;
-        }
-
-        public async Task AddAsync(MusicTrack track)
-        {
-            await _context.MusicTracks.AddAsync(track);
-        }
-
-        public void Remove(MusicTrack track)
-        {
-            _context.MusicTracks.Remove(track);
-        }
-
-        public async Task AddDownloadRecordAsync(DownloadRecord downloadRecord)
-        {
-            await _context.DownloadRecords.AddAsync(downloadRecord);
-        }
-
-        public Task SaveChangesAsync()
-        {
-            return _context.SaveChangesAsync();
+            return new PaginatedResult<T>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
     }
 }

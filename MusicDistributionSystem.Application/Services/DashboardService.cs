@@ -55,6 +55,19 @@ namespace MusicDistributionSystem.Application.Services
             };
         }
 
+        private static string GetSafeFilePath(string webRootPath, string relativePath)
+        {
+            var uploadsRoot = Path.GetFullPath(Path.Combine(webRootPath, "uploads"));
+            var fullPath = Path.GetFullPath(Path.Combine(webRootPath, relativePath.Replace("/", Path.DirectorySeparatorChar.ToString())));
+
+            if (!fullPath.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Invalid file path — attempted path traversal.");
+            }
+
+            return fullPath;
+        }
+
         public async Task<OperationResultDto> DeleteOwnUploadAsync(Guid userId, Guid trackId, bool isAdmin)
         {
             var track = await _musicRepository.GetByIdAsync(trackId, asNoTracking: false);
@@ -68,7 +81,7 @@ namespace MusicDistributionSystem.Application.Services
                 return new OperationResultDto { ErrorMessage = "You do not have permission to delete this upload." };
             }
 
-            var fullPath = Path.Combine(_environment.WebRootPath, track.FilePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+            var fullPath = GetSafeFilePath(_environment.WebRootPath, track.FilePath);
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
@@ -76,7 +89,7 @@ namespace MusicDistributionSystem.Application.Services
 
             if (!string.IsNullOrWhiteSpace(track.CoverImagePath))
             {
-                var coverPath = Path.Combine(_environment.WebRootPath, track.CoverImagePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+                var coverPath = GetSafeFilePath(_environment.WebRootPath, track.CoverImagePath);
                 if (File.Exists(coverPath))
                 {
                     File.Delete(coverPath);

@@ -13,6 +13,7 @@ namespace MusicDistributionSystem.Domain.Entities
         public string? Description { get; set; }
 
         public ICollection<MusicTrack> MusicTracks { get; set; } = new List<MusicTrack>();
+        public ICollection<MediaAsset> MediaAssets { get; set; } = new List<MediaAsset>();
     }
 }
 

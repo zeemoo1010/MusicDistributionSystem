@@ -1,0 +1,11 @@
+# Architecture
+- Keep Controllers thin; move business logic and data mapping into Services, not Controllers. Confidence: 0.80
+- Use Clean/Onion Architecture with layers: Domain, Application, Infrastructure, Persistence, and Web. Confidence: 0.80
+- Use Guid instead of int for entity IDs for security, uniqueness, and scalability. Confidence: 0.70
+- Preserve existing codebase and do not rebuild from scratch; work incrementally with what already exists. Confidence: 0.85
+- Remove duplicate, unused, and legacy files/folders during refactoring. Confidence: 0.80
+- Do not add unnecessary features or overengineer beyond what is needed. Confidence: 0.75
+- Fix all compile-time errors before considering the solution complete. Confidence: 0.75
+- Fix namespace and using directive mismatches to align with correct architectural layers. Confidence: 0.70
+- Use ASP.NET Identity or a clean custom authentication structure with role-based and policy-based authorization. Confidence: 0.75
+- Use Claims-based authentication with Cookie Authentication for user sessions. Confidence: 0.70
