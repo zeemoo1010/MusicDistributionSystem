@@ -33,6 +33,10 @@ namespace MusicDistributionSystem.Domain.Entities
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
         public ICollection<MusicTrack> UploadedTracks { get; set; } = new List<MusicTrack>();
+        public ICollection<Video> UploadedVideos { get; set; } = new List<Video>();
+        public ICollection<ImageAsset> UploadedImages { get; set; } = new List<ImageAsset>();
+        public ICollection<Playlist> Playlists { get; set; } = new List<Playlist>();
     }
 }
+
 

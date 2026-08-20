@@ -5,6 +5,7 @@ using MusicDistributionSystem.Application.Contracts.Payments;
 using MusicDistributionSystem.Application.Contracts.Services;
 using MusicDistributionSystem.Domain.Contracts.Interface;
 using MusicDistributionSystem.Domain.Contracts.Logging;
+using MusicDistributionSystem.Application.Contracts.Security;
 using MusicDistributionSystem.Domain.Contracts.Security;
 using MusicDistributionSystem.Infrastructure.Configuration;
 using MusicDistributionSystem.Infrastructure.EntityFrameworkCore;
@@ -33,22 +34,28 @@ namespace MusicDistributionSystem.Infrastructure
             services.AddScoped<IUploadedFileSecurityService, UploadedFileSecurityService>();
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
             services.AddScoped<IAccountNotificationService, AccountNotificationService>();
+            services.AddScoped<MusicDistributionSystem.Application.Contracts.Infrastructure.IFileStorageService, MusicDistributionSystem.Infrastructure.Storage.LocalFileStorageService>();
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IArtistRepository, ArtistRepository>();
+            services.AddScoped<IAlbumRepository, AlbumRepository>();
+            services.AddScoped<IVideoRepository, VideoRepository>();
+            services.AddScoped<IPlaylistRepository, PlaylistRepository>();
+            services.AddScoped<IImageAssetRepository, ImageAssetRepository>();
             services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>();
             services.AddScoped<IMusicRepository, MusicRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IAccountTokenRepository, AccountTokenRepository>();
 
-            // New entity repositories
-            services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
+            // Entity repositories
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<ILikeRepository, LikeRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
             services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+
 
             services.AddHttpClient("Paystack", client =>
             {
@@ -57,10 +64,11 @@ namespace MusicDistributionSystem.Infrastructure
             });
 
             services.AddScoped<IPaymentGateway, PaystackGateway>();
-            services.AddScoped<IPaymentService, PaystackService>();
             services.AddSingleton<IAppLogger, FileAppLogger>();
+            services.AddHostedService<MusicDistributionSystem.Infrastructure.BackgroundJobs.SubscriptionExpirationWorker>();
 
             return services;
         }
+
     }
 }

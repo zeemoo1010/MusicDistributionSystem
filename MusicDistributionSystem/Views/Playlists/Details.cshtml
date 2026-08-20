@@ -1,0 +1,62 @@
+@model MusicDistributionSystem.Application.DTOs.PlaylistDtos.PlaylistDetailsDto
+@{
+    ViewData["Title"] = $"{Model.Title} - Playlist";
+}
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="glass-card p-4 text-center">
+            <img src="@(Model.CoverImagePath ?? "/images/default-cover.jpg")" alt="@Model.Title" class="w-100 rounded-4 mb-3 shadow-lg" style="aspect-ratio: 1/1; object-fit: cover;" />
+            <h3 class="fw-bold text-light mb-1">@Model.Title</h3>
+            <h6 class="text-muted mb-3">Created by @Model.OwnerName</h6>
+            <p class="text-secondary small mb-4">@(Model.Description ?? "Curated playlist.")</p>
+
+            @if (Model.Tracks.Any())
+            {
+                var first = Model.Tracks.First();
+                <button class="btn btn-brand btn-lg w-100" 
+                        data-play-track 
+                        data-track-id="@first.Id"
+                        data-track-title="@first.Title"
+                        data-track-artist="@first.Artist"
+                        data-track-cover="@(first.CoverImagePath ?? "/images/default-cover.jpg")">
+                    ▶ Play Playlist
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="glass-card p-4">
+            <h4 class="fw-bold text-light mb-3">Tracklist (@Model.Tracks.Count Songs)</h4>
+            @if (Model.Tracks.Any())
+            {
+                int order = 1;
+                @foreach (var track in Model.Tracks)
+                {
+                    <div class="chart-row">
+                        <div class="chart-rank">@order</div>
+                        <img src="@(track.CoverImagePath ?? "/images/default-cover.jpg")" alt="@track.Title" style="width: 44px; height: 44px; border-radius: 6px; object-fit: cover;" />
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-bold text-light text-truncate">@track.Title</div>
+                            <div class="small text-muted text-truncate">@track.Artist</div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-glass" 
+                                data-play-track 
+                                data-track-id="@track.Id"
+                                data-track-title="@track.Title"
+                                data-track-artist="@track.Artist"
+                                data-track-cover="@(track.CoverImagePath ?? "/images/default-cover.jpg")">
+                            ▶
+                        </button>
+                    </div>
+                    order++;
+                }
+            }
+            else
+            {
+                <p class="text-muted">This playlist is currently empty.</p>
+            }
+        </div>
+    </div>
+</div>

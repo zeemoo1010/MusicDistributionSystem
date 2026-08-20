@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  soundsphere-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: soundsphere_sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    restart: always
+
+  soundsphere-web:
+    image: soundsphere-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: soundsphere_app
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=soundsphere-db,1433;Database=SoundSphereDb;User Id=sa;Password=YourStrong@Passw0rd!;TrustServerCertificate=True;MultipleActiveResultSets=True;
+    ports:
+      - "5000:8080"
+    depends_on:
+      - soundsphere-db
+    volumes:
+      - media_uploads:/app/wwwroot/uploads
+      - app_logs:/app/Logs
+    restart: always
+
+volumes:
+  mssql_data:
+  media_uploads:
+  app_logs:

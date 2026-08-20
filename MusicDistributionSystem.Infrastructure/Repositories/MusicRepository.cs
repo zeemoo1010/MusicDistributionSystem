@@ -29,9 +29,37 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
             return await _context.MusicTracks
                 .AsNoTracking()
                 .Include(track => track.Category)
+                .Include(track => track.Album)
+                .Include(track => track.ArtistEntity)
                 .Where(track => track.ApprovalStatus == ApprovalStatus.Approved)
                 .OrderByDescending(track => track.IsFeatured)
                 .ThenByDescending(track => track.CreatedAt)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task<IReadOnlyCollection<MusicTrack>> GetTrendingTracksAsync(int take)
+        {
+            return await _context.MusicTracks
+                .AsNoTracking()
+                .Include(track => track.Category)
+                .Include(track => track.Album)
+                .Include(track => track.ArtistEntity)
+                .Where(track => track.ApprovalStatus == ApprovalStatus.Approved)
+                .OrderByDescending(track => track.PlayCount + (track.DownloadCount * 2))
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task<IReadOnlyCollection<MusicTrack>> GetTopChartTracksAsync(int take)
+        {
+            return await _context.MusicTracks
+                .AsNoTracking()
+                .Include(track => track.Category)
+                .Include(track => track.Album)
+                .Include(track => track.ArtistEntity)
+                .Where(track => track.ApprovalStatus == ApprovalStatus.Approved)
+                .OrderByDescending(track => track.DownloadCount)
                 .Take(take)
                 .ToListAsync();
         }
@@ -40,11 +68,32 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
         {
             var query = _context.MusicTracks
                 .Include(track => track.Category)
+                .Include(track => track.Album)
+                .Include(track => track.ArtistEntity)
+                .Include(track => track.Comments.Where(c => c.IsApproved))
+                    .ThenInclude(c => c.User)
+                .Include(track => track.Likes)
                 .Where(track => track.Id == id && track.ApprovalStatus == ApprovalStatus.Approved);
 
             if (asNoTracking) query = query.AsNoTracking();
             return await query.FirstOrDefaultAsync();
         }
+
+        public async Task<MusicTrack?> GetApprovedTrackBySlugAsync(string slug, bool asNoTracking = true)
+        {
+            var query = _context.MusicTracks
+                .Include(track => track.Category)
+                .Include(track => track.Album)
+                .Include(track => track.ArtistEntity)
+                .Include(track => track.Comments.Where(c => c.IsApproved))
+                    .ThenInclude(c => c.User)
+                .Include(track => track.Likes)
+                .Where(track => track.Slug == slug && track.ApprovalStatus == ApprovalStatus.Approved);
+
+            if (asNoTracking) query = query.AsNoTracking();
+            return await query.FirstOrDefaultAsync();
+        }
+
 
         public async Task<MusicTrack?> GetByIdAsync(Guid id, bool asNoTracking = true)
         {

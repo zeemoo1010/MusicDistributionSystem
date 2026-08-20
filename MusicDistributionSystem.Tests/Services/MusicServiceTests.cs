@@ -1,12 +1,12 @@
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Moq;
+using MusicDistributionSystem.Application.Contracts.Infrastructure;
 using MusicDistributionSystem.Application.DTOs.Music;
 using MusicDistributionSystem.Application.Services;
 using MusicDistributionSystem.Domain.Contracts.Interface;
 using MusicDistributionSystem.Domain.Contracts.Logging;
-using MusicDistributionSystem.Domain.Contracts.Security;
+using MusicDistributionSystem.Application.Contracts.Security;
 using MusicDistributionSystem.Domain.Entities;
 using MusicDistributionSystem.Domain.Enums;
 
@@ -16,15 +16,15 @@ public class MusicServiceTests
 {
     private readonly Mock<IMusicRepository> _musicRepo = new();
     private readonly Mock<ICategoryRepository> _categoryRepo = new();
+    private readonly Mock<IUserRepository> _userRepo = new();
     private readonly Mock<IUploadedFileSecurityService> _fileSecurity = new();
-    private readonly Mock<IWebHostEnvironment> _env = new();
+    private readonly Mock<IFileStorageService> _fileStorage = new();
     private readonly Mock<IAppLogger> _logger = new();
     private readonly MusicService _sut;
 
     public MusicServiceTests()
     {
-        _env.Setup(e => e.WebRootPath).Returns(@"C:\wwwroot");
-        _sut = new MusicService(_musicRepo.Object, _categoryRepo.Object, _fileSecurity.Object, _env.Object, _logger.Object);
+        _sut = new MusicService(_musicRepo.Object, _categoryRepo.Object, _userRepo.Object, _fileSecurity.Object, _fileStorage.Object, _logger.Object);
     }
 
     private static MusicTrack MakeTrack() => new()
@@ -51,11 +51,18 @@ public class MusicServiceTests
     public async Task GetMusicIndexAsync_ShouldReturnMappedTracksAndCategories()
     {
         var tracks = new[] { MakeTrack() };
+        var paged = new MusicDistributionSystem.Domain.Common.PaginatedResult<MusicTrack>
+        {
+            Items = tracks,
+            TotalCount = 1,
+            Page = 1,
+            PageSize = 12
+        };
         var categories = new[] { new Category { Name = "Afrobeat" } };
-        _musicRepo.Setup(r => r.GetApprovedTracksAsync(null, null)).ReturnsAsync(tracks);
+        _musicRepo.Setup(r => r.GetApprovedTracksPagedAsync(null, null, 1, 12)).ReturnsAsync(paged);
         _categoryRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(categories);
 
-        var result = await _sut.GetMusicIndexAsync(null, null);
+        var result = await _sut.GetMusicIndexAsync(null, null, 1, 12);
 
         result.Tracks.Should().HaveCount(1);
         result.Tracks.First().Title.Should().Be("Test Track");
@@ -67,13 +74,21 @@ public class MusicServiceTests
     public async Task GetMusicIndexAsync_ShouldPassSearchAndFilterToRepository()
     {
         var catId = Guid.NewGuid();
-        _musicRepo.Setup(r => r.GetApprovedTracksAsync("search", catId)).ReturnsAsync(Array.Empty<MusicTrack>());
+        var paged = new MusicDistributionSystem.Domain.Common.PaginatedResult<MusicTrack>
+        {
+            Items = Array.Empty<MusicTrack>(),
+            TotalCount = 0,
+            Page = 1,
+            PageSize = 12
+        };
+        _musicRepo.Setup(r => r.GetApprovedTracksPagedAsync("search", catId, 1, 12)).ReturnsAsync(paged);
         _categoryRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(Array.Empty<Category>());
 
-        await _sut.GetMusicIndexAsync("search", catId);
+        await _sut.GetMusicIndexAsync("search", catId, 1, 12);
 
-        _musicRepo.Verify(r => r.GetApprovedTracksAsync("search", catId), Times.Once);
+        _musicRepo.Verify(r => r.GetApprovedTracksPagedAsync("search", catId, 1, 12), Times.Once);
     }
+
 
     // ── GetMusicDetailsAsync ──
 
@@ -172,6 +187,8 @@ public class MusicServiceTests
         _fileSecurity.Setup(s => s.ValidateCoverImageAsync(null, It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, null));
         _fileSecurity.Setup(s => s.SanitizeFileName(It.IsAny<string>())).Returns<string>(n => n);
+        _fileStorage.Setup(s => s.SaveFileAsync(request.MusicFile, "music", It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("uploads/music/track.mp3");
 
         var result = await _sut.UploadAsync(request, Guid.NewGuid(), "uploader", "up@test.com");
 
@@ -187,21 +204,71 @@ public class MusicServiceTests
     {
         _musicRepo.Setup(r => r.GetApprovedTrackByIdAsync(It.IsAny<Guid>(), false)).ReturnsAsync((MusicTrack?)null);
 
-        var result = await _sut.PrepareDownloadAsync(Guid.NewGuid(), null);
+        var result = await _sut.PrepareDownloadAsync(Guid.NewGuid(), null, null);
 
         result.Found.Should().BeFalse();
     }
 
     [Fact]
-    public async Task PrepareDownloadAsync_WhenPremiumTrack_ShouldBlockDownload()
+    public async Task PrepareDownloadAsync_WhenPremiumTrack_AnonymousUser_ShouldBlockDownload()
     {
         var track = MakeTrack();
         track.AccessLevel = ContentAccessLevel.Premium;
         _musicRepo.Setup(r => r.GetApprovedTrackByIdAsync(track.Id, false)).ReturnsAsync(track);
 
-        var result = await _sut.PrepareDownloadAsync(track.Id, null);
+        var result = await _sut.PrepareDownloadAsync(track.Id, null, null);
 
         result.Found.Should().BeTrue();
         result.Allowed.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("log in");
+    }
+
+    [Fact]
+    public async Task PrepareDownloadAsync_WhenPremiumTrack_UserWithInsufficientTier_ShouldBlockDownload()
+    {
+        var track = MakeTrack();
+        track.AccessLevel = ContentAccessLevel.Premium;
+        var userId = Guid.NewGuid();
+        _musicRepo.Setup(r => r.GetApprovedTrackByIdAsync(track.Id, false)).ReturnsAsync(track);
+        _userRepo.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(new User
+        {
+            Username = "freeuser",
+            Email = "free@test.com",
+            PasswordHash = "hash",
+            IsActive = true,
+            IsEmailVerified = true,
+            MembershipTier = MembershipTier.Free
+        });
+
+        var result = await _sut.PrepareDownloadAsync(track.Id, userId, null);
+
+        result.Found.Should().BeTrue();
+        result.Allowed.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("Premium");
+    }
+
+    [Fact]
+    public async Task PrepareDownloadAsync_WhenPremiumTrack_UserWithSufficientTier_ShouldAllow()
+    {
+        var track = MakeTrack();
+        track.AccessLevel = ContentAccessLevel.Premium;
+        var userId = Guid.NewGuid();
+        _musicRepo.Setup(r => r.GetApprovedTrackByIdAsync(track.Id, false)).ReturnsAsync(track);
+        _userRepo.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(new User
+        {
+            Username = "premiumuser",
+            Email = "premium@test.com",
+            PasswordHash = "hash",
+            IsActive = true,
+            IsEmailVerified = true,
+            MembershipTier = MembershipTier.Premium
+        });
+        _fileStorage.Setup(s => s.FileExists(track.FilePath)).Returns(false);
+
+        var result = await _sut.PrepareDownloadAsync(track.Id, userId, null);
+
+        result.Found.Should().BeTrue();
+        result.Allowed.Should().BeTrue();
+        result.FileExists.Should().BeFalse();
     }
 }

@@ -33,7 +33,6 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
             return _context.Categories
                 .AsNoTracking()
                 .Include(c => c.MusicTracks)
-                .Include(c => c.MediaAssets)
                 .FirstOrDefaultAsync(category => category.Id == id);
         }
 

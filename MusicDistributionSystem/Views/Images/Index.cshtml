@@ -1,0 +1,45 @@
+@model MusicDistributionSystem.Application.DTOs.ImageDtos.ImageIndexDto
+@{
+    ViewData["Title"] = "HD Wallpapers & Artwork Gallery";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold text-light m-0">🖼 Wallpapers & Artwork Gallery</h2>
+        <p class="text-muted small m-0">Discover high-resolution wallpapers, artist photography, and cover designs</p>
+    </div>
+    @if (User.IsInRole("Artist") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+    {
+        <a asp-action="Upload" class="btn btn-brand">+ Upload Artwork</a>
+    }
+</div>
+
+<!-- Gallery Grid -->
+@if (Model.Images.Any())
+{
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 g-md-3 mb-4">
+        @foreach (var img in Model.Images)
+        {
+            <div class="col">
+                <div class="media-card h-100 d-flex flex-column">
+                    <a asp-action="Details" asp-route-slug="@img.Slug" class="text-decoration-none">
+                        <img src="@img.FilePath" alt="@img.Title" class="w-100 rounded-3 mb-2 shadow object-fit-cover" style="aspect-ratio: 4/3;" loading="lazy" />
+                        <h5 class="fw-bold text-light mb-1 text-truncate fs-6">@img.Title</h5>
+                    </a>
+                    <div class="text-muted small mb-2 text-truncate">@(img.CategoryName ?? "Artwork")</div>
+                    <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top border-secondary border-opacity-25 small text-secondary">
+                        <span class="badge-tier badge-tier-@img.AccessLevel.ToString().ToLower()">@img.AccessLevel</span>
+                        <a href="/Media/DownloadImage/@img.Id" class="text-primary fw-bold text-decoration-none">⬇ Get</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="glass-card p-5 text-center my-4">
+        <h4 class="text-muted">No artwork found</h4>
+        <p class="text-secondary">Be the first to upload an artwork or wallpaper!</p>
+    </div>
+}

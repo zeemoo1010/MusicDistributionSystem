@@ -17,11 +17,11 @@ namespace MusicDistributionSystem.Infrastructure.Data
             if (!context.Categories.Any())
             {
                 context.Categories.AddRange(
-                    new Category { Name = "Afrobeats", Description = "Trending Afrobeats singles and albums." },
-                    new Category { Name = "Gospel", Description = "Inspirational songs and worship music." },
-                    new Category { Name = "Hip Hop", Description = "Rap releases, freestyles, and mixtapes." },
-                    new Category { Name = "Highlife", Description = "Classic and contemporary highlife sounds." },
-                    new Category { Name = "Mixtapes", Description = "DJ mixes and curated listening sessions." }
+                    new Category { Name = "Afrobeats", Slug = "afrobeats", Description = "Trending Afrobeats singles and albums." },
+                    new Category { Name = "Gospel", Slug = "gospel", Description = "Inspirational songs and worship music." },
+                    new Category { Name = "Hip Hop", Slug = "hip-hop", Description = "Rap releases, freestyles, and mixtapes." },
+                    new Category { Name = "Highlife", Slug = "highlife", Description = "Classic and contemporary highlife sounds." },
+                    new Category { Name = "Mixtapes", Slug = "mixtapes", Description = "DJ mixes and curated listening sessions." }
                 );
             }
 
@@ -116,6 +116,43 @@ namespace MusicDistributionSystem.Infrastructure.Data
             }
 
             await context.SaveChangesAsync();
+
+            // Seed Featured Artists if none exist
+            if (!context.Artists.Any())
+            {
+                var burna = new Artist
+                {
+                    Name = "Burna Boy",
+                    Slug = "burna-boy",
+                    Bio = "Grammy-winning Nigerian Afro-fusion pioneer, singer, and songwriter.",
+                    Country = "Nigeria",
+                    IsVerified = true,
+                    SpotifyUrl = "https://open.spotify.com/artist/3wcj11Q77Ac9xdpm74RpVe",
+                    InstagramUrl = "https://instagram.com/burnaboygram"
+                };
+
+                var wizkid = new Artist
+                {
+                    Name = "Wizkid",
+                    Slug = "wizkid",
+                    Bio = "Global Afrobeats icon, Starboy Entertainment headliner.",
+                    Country = "Nigeria",
+                    IsVerified = true,
+                    SpotifyUrl = "https://open.spotify.com/artist/3tVQdUvMrE00n2B28B451m"
+                };
+
+                var asake = new Artist
+                {
+                    Name = "Asake",
+                    Slug = "asake",
+                    Bio = "YBNL sensation renowned for blending Amapiano, Fuji, and Street-pop.",
+                    Country = "Nigeria",
+                    IsVerified = true
+                };
+
+                context.Artists.AddRange(burna, wizkid, asake);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

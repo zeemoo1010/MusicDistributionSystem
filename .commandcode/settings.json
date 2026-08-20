@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(dotnet:*)",
+      "powershell"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

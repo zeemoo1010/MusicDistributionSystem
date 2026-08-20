@@ -1,0 +1,66 @@
+@model MusicDistributionSystem.Application.DTOs.VideoDtos.VideoUploadRequestDto
+@{
+    ViewData["Title"] = "Upload Music Video";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card p-4 p-md-5">
+            <h2 class="fw-bold text-light mb-1">Upload Music Video</h2>
+            <p class="text-muted small mb-4">Share official visual premieres, live sessions, or studio performances</p>
+
+            <form method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Video Title *</label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g. Last Last (Official Video)" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Artist / Performer Name *</label>
+                    <input asp-for="ArtistName" class="form-control" placeholder="e.g. Burna Boy" required />
+                    <span asp-validation-for="ArtistName" class="text-danger"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-light">Category / Genre *</label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="Model.Categories" required>
+                            <option value="">Select Category</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-light">Access Level</label>
+                        <select asp-for="AccessLevel" class="form-select" asp-items="Html.GetEnumSelectList<MusicDistributionSystem.Domain.Enums.ContentAccessLevel>()"></select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Director credits, video synopsis, lyrics snippet..."></textarea>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label text-light">Video File (MP4) *</label>
+                        <input asp-for="VideoFile" type="file" class="form-control" accept="video/mp4,video/*" required />
+                        <span asp-validation-for="VideoFile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-light">Thumbnail Preview Image</label>
+                        <input asp-for="ThumbnailImage" type="file" class="form-control" accept="image/*" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-brand btn-lg px-4">Upload Video</button>
+                    <a asp-action="Index" class="btn btn-outline-glass btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

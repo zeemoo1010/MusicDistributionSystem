@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Http;
-using MusicDistributionSystem.Domain.Contracts.Security;
+using MusicDistributionSystem.Application.Contracts.Security;
 
 namespace MusicDistributionSystem.Infrastructure.Security
 {

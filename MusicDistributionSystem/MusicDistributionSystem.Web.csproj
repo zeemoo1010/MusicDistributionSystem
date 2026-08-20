@@ -21,7 +21,7 @@
     <ProjectReference Include="..\MusicDistributionSystem.Application\MusicDistributionSystem.Application.csproj" />
     <ProjectReference Include="..\MusicDistributionSystem.Domain\MusicDistributionSystem.Domain.csproj" />
     <ProjectReference Include="..\MusicDistributionSystem.Infrastructure\MusicDistributionSystem.Infrastructure.csproj" />
-    <ProjectReference Include="..\MusicDistributionSystem.Persistence\MusicDistributionSystem.Persistence.csproj" />
+
   </ItemGroup>
 
   <ItemGroup>

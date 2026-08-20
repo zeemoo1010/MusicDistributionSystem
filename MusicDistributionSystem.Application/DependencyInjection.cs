@@ -10,6 +10,13 @@ namespace MusicDistributionSystem.Application
         {
             services.AddScoped<IHomeService, HomeService>();
             services.AddScoped<IMusicService, MusicService>();
+            services.AddScoped<IArtistService, ArtistService>();
+            services.AddScoped<IAlbumService, AlbumService>();
+            services.AddScoped<IVideoService, VideoService>();
+            services.AddScoped<IPlaylistService, PlaylistService>();
+            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IMediaStreamingService, MediaStreamingService>();
+            services.AddScoped<IAiContentService, AiContentService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IAdministrationService, AdministrationService>();
@@ -18,5 +25,6 @@ namespace MusicDistributionSystem.Application
 
             return services;
         }
+
     }
 }

@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem.App
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem.Infrastructure", "MusicDistributionSystem.Infrastructure\MusicDistributionSystem.Infrastructure.csproj", "{1A939FEE-0B81-4CE1-AB0C-0359B0523705}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDistributionSystem.Persistence", "MusicDistributionSystem.Persistence\MusicDistributionSystem.Persistence.csproj", "{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{1A939FEE-0B81-4CE1-AB0C-0359B0523705}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A939FEE-0B81-4CE1-AB0C-0359B0523705}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A939FEE-0B81-4CE1-AB0C-0359B0523705}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A504CD9-8F7B-4C2B-AA46-FBE050DF96D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

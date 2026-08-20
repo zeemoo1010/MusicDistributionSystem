@@ -1,0 +1,97 @@
+@model IReadOnlyCollection<MusicDistributionSystem.Application.DTOs.Payment.PaymentCheckoutDto>
+@{
+    ViewData["Title"] = "SoundSphere Membership Plans & Pricing";
+}
+
+<div class="text-center mb-5">
+    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 px-3 py-2 rounded-pill mb-3 fw-bold">
+        💎 SoundSphere Membership
+    </span>
+    <h1 class="hero-title mb-2">
+        Choose Your <span class="hero-title-gradient">Sound Experience</span>
+    </h1>
+    <p class="text-muted lead mx-auto" style="max-width: 600px;">
+        Unlock unlimited high-speed downloads, lossless audio streaming, artist tools, and exclusive drops.
+    </p>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center mb-5">
+    @foreach (var plan in Model)
+    {
+        bool isPremium = plan.TierName.Equals("Premium", StringComparison.OrdinalIgnoreCase);
+        bool isGold = plan.TierName.Equals("Gold", StringComparison.OrdinalIgnoreCase);
+
+        <div class="col">
+            <div class="glass-card p-4 h-100 d-flex flex-column text-center position-relative @(isPremium || isGold ? "border-primary" : "")">
+                @if (isPremium)
+                {
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <span class="badge bg-primary px-3 py-1 rounded-pill fw-bold">POPULAR</span>
+                    </div>
+                }
+                else if (isGold)
+                {
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">VIP ACCESS</span>
+                    </div>
+                }
+
+                <h3 class="fw-bold text-light mt-2 mb-1">@plan.PlanName</h3>
+                <span class="badge-tier badge-tier-@plan.TierName.ToLower() mb-3 mx-auto">@plan.TierName Tier</span>
+
+                <div class="my-3">
+                    @if (plan.MonthlyPrice <= 0)
+                    {
+                        <span class="display-5 fw-bold text-light">FREE</span>
+                        <div class="text-muted small">Forever Access</div>
+                    }
+                    else
+                    {
+                        <span class="display-5 fw-bold text-light">₦@plan.MonthlyPrice.ToString("N0")</span>
+                        <span class="text-muted">/ month</span>
+                    }
+                </div>
+
+                <p class="text-secondary small mb-4">@plan.Description</p>
+
+                <div class="text-start mb-4 flex-grow-1">
+                    <ul class="list-unstyled d-flex flex-column gap-2 small text-secondary">
+                        @if (plan.TierName.Equals("Free", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <li>✓ Unlimited audio streaming</li>
+                            <li>✓ Access to public playlists</li>
+                            <li>✓ Free MP3 direct downloads</li>
+                            <li>✕ Premium & Gold exclusive releases</li>
+                            <li>✕ HD Music Video downloads</li>
+                        }
+                        else if (isPremium)
+                        {
+                            <li>✓ Unlimited audio & video streaming</li>
+                            <li>✓ Premium MP3 & HD downloads</li>
+                            <li>✓ Create & curate custom playlists</li>
+                            <li>✓ Direct Artist commenting & likes</li>
+                            <li>✓ Ad-free experience</li>
+                        }
+                        else
+                        {
+                            <li>✓ Everything in Premium</li>
+                            <li>✓ VIP Gold exclusive release drops</li>
+                            <li>✓ High-res master audio downloads</li>
+                            <li>✓ Early access to music video premieres</li>
+                            <li>✓ Verified Gold community badge</li>
+                        }
+                    </ul>
+                </div>
+
+                <a asp-action="Checkout" asp-route-planId="@plan.PlanId" class="btn @(isPremium || isGold ? "btn-brand" : "btn-outline-glass") btn-lg w-100 mt-auto">
+                    @(plan.MonthlyPrice <= 0 ? "Get Started Free" : "Subscribe Now")
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="glass-card p-4 text-center mx-auto" style="max-width: 700px;">
+    <h5 class="fw-bold text-light mb-1">🔒 Secure Payments with Paystack</h5>
+    <p class="text-muted small m-0">All transactions are encrypted with 256-bit SSL and processed securely through Paystack. Cancel anytime.</p>
+</div>

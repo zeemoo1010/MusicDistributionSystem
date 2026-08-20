@@ -49,6 +49,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddMemoryCache();
+builder.Services.AddHealthChecks();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(
     builder.Configuration.GetConnectionString("DefaultConnection")!,
@@ -61,6 +67,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -109,14 +116,17 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseSerilogRequestLogging();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
 app.MapStaticAssets();
 
 app.MapControllerRoute(
@@ -125,6 +135,7 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
+
 
 static async Task<bool> HasLegacySchemaWithoutMigrationHistoryAsync(ApplicationDbContext context)
 {

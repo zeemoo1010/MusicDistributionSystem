@@ -1,0 +1,50 @@
+@model MusicDistributionSystem.Application.DTOs.AlbumDtos.CreateAlbumRequestDto
+@{
+    ViewData["Title"] = "Create New Album";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card p-4 p-md-5">
+            <h2 class="fw-bold text-light mb-1">Create New Album</h2>
+            <p class="text-muted small mb-4">Group multi-track singles or launch a full body of work</p>
+
+            <form method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Album Title *</label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g. Love, Damini" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Overview of the album theme..."></textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-light">Access Level</label>
+                        <select asp-for="AccessLevel" class="form-select" asp-items="Html.GetEnumSelectList<MusicDistributionSystem.Domain.Enums.ContentAccessLevel>()"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-light">Release Date</label>
+                        <input asp-for="ReleaseDate" type="date" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-light">Cover Artwork *</label>
+                    <input asp-for="CoverImage" type="file" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-brand btn-lg px-4">Save Album</button>
+                    <a asp-action="Index" class="btn btn-outline-glass btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

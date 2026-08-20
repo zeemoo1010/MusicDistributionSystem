@@ -199,8 +199,10 @@ namespace MusicDistributionSystem.Controllers
                 new(ClaimTypes.NameIdentifier, result.UserId.ToString()),
                 new(ClaimTypes.Name, result.Username),
                 new("UserId", result.UserId.ToString()),
-                new("Username", result.Username)
+                new("Username", result.Username),
+                new("MembershipTier", result.MembershipTier)
             };
+
 
             if (!string.IsNullOrWhiteSpace(result.Email))
             {

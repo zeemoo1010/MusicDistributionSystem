@@ -8,6 +8,10 @@ namespace MusicDistributionSystem.Application.DTOs.Music
         public IReadOnlyCollection<CategoryOptionDto> Categories { get; set; } = Array.Empty<CategoryOptionDto>();
         public string? SearchTerm { get; set; }
         public Guid? CategoryId { get; set; }
+        public int TotalCount { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 12;
     }
 }
+
 

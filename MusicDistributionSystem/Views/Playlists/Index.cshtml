@@ -1,0 +1,37 @@
+@model IReadOnlyCollection<MusicDistributionSystem.Application.DTOs.PlaylistDtos.PlaylistCardDto>
+@{
+    ViewData["Title"] = "Playlists - Curated Listening Sessions";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold text-light m-0">🎧 Curated Playlists</h2>
+        <p class="text-muted small m-0">Discover editorial mood playlists and community collections</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="MyPlaylists" class="btn btn-outline-glass">My Playlists</a>
+        <a asp-action="Create" class="btn btn-brand">+ New Playlist</a>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    @foreach (var pl in Model)
+    {
+        <div class="col">
+            <div class="glass-card p-3 h-100 d-flex flex-column">
+                <a asp-action="Details" asp-route-slug="@pl.Slug" class="text-decoration-none">
+                    <img src="@(pl.CoverImagePath ?? "/images/default-cover.jpg")" alt="@pl.Title" class="w-100 rounded-3 mb-2 shadow" style="aspect-ratio: 1/1; object-fit: cover;" />
+                    <h5 class="fw-bold text-light mb-1 text-truncate">@pl.Title</h5>
+                </a>
+                <div class="text-muted small mb-2 text-truncate">By @pl.OwnerName</div>
+                <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top border-secondary border-opacity-25 small text-secondary">
+                    <span>🎵 @pl.TrackCount Tracks</span>
+                    @if (pl.IsEditorial)
+                    {
+                        <span class="badge bg-primary bg-opacity-25 text-primary">Editorial</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

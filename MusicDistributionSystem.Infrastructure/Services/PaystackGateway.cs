@@ -21,19 +21,31 @@ namespace MusicDistributionSystem.Infrastructure.Services
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
+        private readonly string _secretKey;
+
         public PaystackGateway(IHttpClientFactory httpClientFactory, IOptions<PaystackSettings> settings, IAppLogger logger)
         {
             _httpClient = httpClientFactory.CreateClient("Paystack");
             _logger = logger;
+            _secretKey = settings.Value.SecretKey ?? string.Empty;
 
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", settings.Value.SecretKey);
+            if (!string.IsNullOrWhiteSpace(_secretKey))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", _secretKey);
+            }
             _httpClient.BaseAddress = new Uri("https://api.paystack.co");
         }
 
         public async Task<PaymentGatewayInitializeResultDto> InitializeAsync(
             PaymentGatewayInitializeRequestDto request, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(_secretKey))
+            {
+                await _logger.LogWarningAsync("Paystack", "Gateway init attempted without Paystack SecretKey configured.");
+                return new PaymentGatewayInitializeResultDto { ErrorMessage = "Paystack gateway key is not configured." };
+            }
+
             var amountInKobo = (int)(request.Amount * 100);
 
             var body = new
@@ -75,6 +87,11 @@ namespace MusicDistributionSystem.Infrastructure.Services
 
         public async Task<PaymentGatewayVerificationResultDto> VerifyAsync(string reference, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(_secretKey))
+            {
+                await _logger.LogWarningAsync("Paystack", $"Gateway verify attempted for reference '{reference}' without Paystack SecretKey configured.");
+                return new PaymentGatewayVerificationResultDto { ErrorMessage = "Paystack gateway key is not configured." };
+            }
             try
             {
                 var response = await _httpClient.GetAsync($"/transaction/verify/{Uri.EscapeDataString(reference)}", cancellationToken);
@@ -91,7 +108,8 @@ namespace MusicDistributionSystem.Infrastructure.Services
                         Amount = result.Data.Amount / 100m,
                         Currency = result.Data.Currency ?? "NGN",
                         UserId = result.Data.Metadata?.UserId,
-                        PlanId = result.Data.Metadata?.PlanId
+                        PlanId = result.Data.Metadata?.PlanId,
+                        RawResponse = responseBody
                     };
                 }
 

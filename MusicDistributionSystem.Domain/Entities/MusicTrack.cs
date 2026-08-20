@@ -14,6 +14,9 @@ namespace MusicDistributionSystem.Domain.Entities
         [StringLength(120)]
         public string Artist { get; set; } = string.Empty;
 
+        [StringLength(200)]
+        public string Slug { get; set; } = string.Empty;
+
         [StringLength(1000)]
         public string? Description { get; set; }
 
@@ -27,12 +30,27 @@ namespace MusicDistributionSystem.Domain.Entities
 
         public long FileSizeBytes { get; set; }
 
+        public string? MimeType { get; set; }
+
+        public string? Duration { get; set; }
+
         public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
 
         public ContentAccessLevel AccessLevel { get; set; } = ContentAccessLevel.Free;
+
         public int DownloadCount { get; set; }
 
+        public int PlayCount { get; set; }
+
         public bool IsFeatured { get; set; }
+
+        public Guid? ArtistId { get; set; }
+        public Artist? ArtistEntity { get; set; }
+
+        public Guid? AlbumId { get; set; }
+        public Album? Album { get; set; }
+
+        public int? TrackNumber { get; set; }
 
         public Guid CategoryId { get; set; }
         public Category? Category { get; set; }
@@ -56,6 +74,10 @@ namespace MusicDistributionSystem.Domain.Entities
         public string? RejectionReason { get; set; }
 
         public ICollection<DownloadRecord> Downloads { get; set; } = new List<DownloadRecord>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Like> Likes { get; set; } = new List<Like>();
+        public ICollection<TrackTag> TrackTags { get; set; } = new List<TrackTag>();
+        public ICollection<PlaylistTrack> PlaylistTracks { get; set; } = new List<PlaylistTrack>();
     }
 }
 

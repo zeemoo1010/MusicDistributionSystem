@@ -6,6 +6,6 @@ namespace MusicDistributionSystem.Domain.Entities
     {
         public string Name { get; set; } = string.Empty;
         public string? Slug { get; set; }
-        public ICollection<MediaAssetTag> MediaAssetTags { get; set; } = new List<MediaAssetTag>();
+        public ICollection<TrackTag> TrackTags { get; set; } = new List<TrackTag>();
     }
 }

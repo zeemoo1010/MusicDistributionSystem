@@ -10,14 +10,14 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
 
         public LikeRepository(ApplicationDbContext context) => _context = context;
 
-        public Task<bool> IsLikedAsync(Guid userId, Guid mediaAssetId)
+        public Task<bool> IsLikedAsync(Guid userId, Guid trackId)
         {
-            return _context.Likes.AnyAsync(l => l.UserId == userId && l.MediaAssetId == mediaAssetId);
+            return _context.Likes.AnyAsync(l => l.UserId == userId && l.MusicTrackId == trackId);
         }
 
-        public Task<int> CountByMediaAssetAsync(Guid mediaAssetId)
+        public Task<int> CountByTrackAsync(Guid trackId)
         {
-            return _context.Likes.CountAsync(l => l.MediaAssetId == mediaAssetId);
+            return _context.Likes.CountAsync(l => l.MusicTrackId == trackId);
         }
 
         public async Task AddAsync(Like like) => await _context.Likes.AddAsync(like);

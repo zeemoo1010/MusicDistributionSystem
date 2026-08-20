@@ -15,26 +15,49 @@ namespace MusicDistributionSystem.Controllers
             _musicService = musicService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, Guid? categoryId)
+        public async Task<IActionResult> Index(string? searchTerm, Guid? categoryId, int page = 1)
         {
-            var model = await _musicService.GetMusicIndexAsync(searchTerm, categoryId);
+            var model = await _musicService.GetMusicIndexAsync(searchTerm, categoryId, page, 12);
             return View(model);
         }
 
+        [HttpGet("/Music/Details/{id:guid}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var track = await _musicService.GetMusicDetailsAsync(id);
-            if (track is null)
-            {
-                return NotFound();
-            }
-
+            if (track is null) return NotFound();
             return View(track);
+        }
+
+        [HttpGet("/Music/Track/{slug}")]
+        public async Task<IActionResult> Track(string slug)
+        {
+            var track = await _musicService.GetMusicDetailsBySlugAsync(slug);
+            if (track is null) return NotFound();
+            return View("Details", track);
+        }
+
+        [HttpPost("/Music/Comment")]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(Guid trackId, string content, string returnUrl)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _musicService.AddCommentAsync(trackId, userId, content);
+            return LocalRedirect(returnUrl ?? $"/Music/Details/{trackId}");
+        }
+
+        [HttpPost("/Music/Like")]
+        [Authorize]
+        public async Task<IActionResult> ToggleLike(Guid trackId)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _musicService.ToggleLikeAsync(trackId, userId);
+            return Json(new { success = result.Succeeded });
         }
 
         [Authorize(Policy = "CanUploadContent")]
         [HttpGet]
-        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Upload()
         {
             var model = await _musicService.GetUploadFormAsync();
@@ -43,6 +66,7 @@ namespace MusicDistributionSystem.Controllers
 
         [Authorize(Policy = "CanUploadContent")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Upload(MusicUploadRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -70,24 +94,33 @@ namespace MusicDistributionSystem.Controllers
                 return View(hydratedRequest);
             }
 
-            TempData["StatusMessage"] = "Upload received successfully. It is now awaiting admin approval.";
+            TempData["SuccessMessage"] = $"Track '{request.Title}' uploaded successfully!";
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize]
-        [HttpPost]
+        [HttpPost("/Music/Download/{id:guid}")]
+        [HttpGet("/Music/Download/{id:guid}")]
         public async Task<IActionResult> Download(Guid id)
         {
-            var result = await _musicService.PrepareDownloadAsync(id, HttpContext.Connection.RemoteIpAddress?.ToString());
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Guid? userId = Guid.TryParse(userIdClaim, out var parsedUserId) ? parsedUserId : null;
+
+            var result = await _musicService.PrepareDownloadAsync(id, userId, HttpContext.Connection.RemoteIpAddress?.ToString());
 
             if (!result.Found)
             {
-                return NotFound();
+                return NotFound("Track not found.");
             }
 
-            if (!result.Allowed || !result.FileExists)
+            if (!result.Allowed)
             {
-                TempData["StatusMessage"] = result.ErrorMessage;
+                TempData["ErrorMessage"] = result.ErrorMessage;
+                return RedirectToAction("Plans", "Payment");
+            }
+
+            if (!result.FileExists)
+            {
+                TempData["ErrorMessage"] = "Audio file is missing on the server.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -106,4 +139,5 @@ namespace MusicDistributionSystem.Controllers
         }
     }
 }
+
 

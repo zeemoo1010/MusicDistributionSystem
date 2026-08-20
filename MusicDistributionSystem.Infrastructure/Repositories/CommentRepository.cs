@@ -10,13 +10,13 @@ namespace MusicDistributionSystem.Infrastructure.EntityFrameworkCore.Repositorie
 
         public CommentRepository(ApplicationDbContext context) => _context = context;
 
-        public async Task<IReadOnlyCollection<Comment>> GetByMediaAssetAsync(Guid mediaAssetId)
+        public async Task<IReadOnlyCollection<Comment>> GetByTrackAsync(Guid trackId)
         {
             return await _context.Comments
                 .AsNoTracking()
                 .Include(c => c.User)
                 .Include(c => c.Replies)
-                .Where(c => c.MediaAssetId == mediaAssetId && c.ParentCommentId == null)
+                .Where(c => c.MusicTrackId == trackId && c.ParentCommentId == null)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }

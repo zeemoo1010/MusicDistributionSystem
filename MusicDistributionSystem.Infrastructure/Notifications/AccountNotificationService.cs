@@ -48,6 +48,24 @@ namespace MusicDistributionSystem.Infrastructure.Notifications
                 """);
         }
 
+        public Task SendPaymentReceiptAsync(string destination, string planName, decimal amount, string reference)
+        {
+            return SendEmailAsync(
+                destination,
+                $"Payment Receipt & Subscription Activated - {planName}",
+                $"""
+                <p>Hello,</p>
+                <p>Thank you for subscribing to SoundSphere!</p>
+                <p>Your payment has been successfully processed and your <strong>{planName}</strong> plan is now active.</p>
+                <table style="border-collapse: collapse; margin: 15px 0;">
+                    <tr><td style="padding: 4px 12px 4px 0;"><strong>Plan:</strong></td><td>{planName}</td></tr>
+                    <tr><td style="padding: 4px 12px 4px 0;"><strong>Amount Paid:</strong></td><td>&#8358;{amount:N2} NGN</td></tr>
+                    <tr><td style="padding: 4px 12px 4px 0;"><strong>Reference:</strong></td><td>{reference}</td></tr>
+                </table>
+                <p>If you have any questions about your subscription, please contact support.</p>
+                """);
+        }
+
         private async Task SendEmailAsync(string destination, string subject, string htmlBody)
         {
             if (string.IsNullOrWhiteSpace(_emailSettings.SenderEmail) ||

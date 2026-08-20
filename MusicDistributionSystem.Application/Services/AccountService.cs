@@ -152,10 +152,12 @@ namespace MusicDistributionSystem.Application.Services
                 UserId = user.Id,
                 Username = user.Username,
                 Email = user.Email,
+                MembershipTier = user.MembershipTier.ToString(),
                 Roles = user.UserRoles.Select(userRole => userRole.Role?.Name ?? string.Empty)
                     .Where(roleName => !string.IsNullOrWhiteSpace(roleName))
                     .ToArray()
             };
+
         }
 
         public async Task<OperationResultDto> VerifyEmailAsync(VerifyEmailRequestDto request)

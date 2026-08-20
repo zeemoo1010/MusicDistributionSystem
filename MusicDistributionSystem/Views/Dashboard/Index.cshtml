@@ -26,14 +26,42 @@
     </div>
 </section>
 
-<section class="content-card">
-    <h2>My uploads</h2>
+<section class="content-card p-3 p-md-4">
+    <h2 class="h4 fw-bold text-light mb-3">My Uploads</h2>
     @if (Model.Uploads.Any())
     {
-        <div class="table-responsive mt-3">
-            <table class="table align-middle">
+        <!-- Mobile Card List (d-md-none) -->
+        <div class="d-md-none d-flex flex-column gap-3">
+            @foreach (var upload in Model.Uploads)
+            {
+                <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <div class="fw-bold text-light">@upload.Title</div>
+                            <div class="small text-muted">@upload.Artist</div>
+                        </div>
+                        <span class="badge bg-secondary bg-opacity-50 text-light">@upload.ApprovalStatus</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center text-muted small pt-2 border-top border-secondary border-opacity-25 mt-2">
+                        <span>Submitted: @upload.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</span>
+                        <form asp-action="DeleteUpload" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@upload.Id" />
+                            <button class="btn btn-sm btn-outline-danger px-2 py-1" type="submit">Delete</button>
+                        </form>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(upload.RejectionReason))
+                    {
+                        <div class="text-danger small fw-semibold mt-2">Reason: @upload.RejectionReason</div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Desktop Table (d-none d-md-block) -->
+        <div class="table-responsive mt-3 d-none d-md-block">
+            <table class="table align-middle text-light">
                 <thead>
-                    <tr>
+                    <tr class="text-muted">
                         <th>Title</th>
                         <th>Artist</th>
                         <th>Status</th>
@@ -47,10 +75,10 @@
                     @foreach (var upload in Model.Uploads)
                     {
                         <tr>
-                            <td>@upload.Title</td>
+                            <td class="fw-semibold">@upload.Title</td>
                             <td>@upload.Artist</td>
-                            <td>@upload.ApprovalStatus</td>
-                            <td>@upload.AccessLevel</td>
+                            <td><span class="badge bg-secondary bg-opacity-50">@upload.ApprovalStatus</span></td>
+                            <td><span class="badge-tier badge-tier-@upload.AccessLevel.ToString().ToLower()">@upload.AccessLevel</span></td>
                             <td>
                                 @if (!string.IsNullOrWhiteSpace(upload.RejectionReason))
                                 {

@@ -16,6 +16,8 @@ namespace MusicDistributionSystem.Application.DTOs.Payment
 
         public Guid? PlanId { get; set; }
 
+        public string? RawResponse { get; set; }
+
         public string? ErrorMessage { get; set; }
     }
 }

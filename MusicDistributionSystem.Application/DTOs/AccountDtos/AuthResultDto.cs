@@ -8,7 +8,9 @@ namespace MusicDistributionSystem.Application.DTOs.Account
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public IReadOnlyCollection<string> Roles { get; set; } = Array.Empty<string>();
+        public string MembershipTier { get; set; } = "Free";
         public bool RequiresVerification { get; set; }
     }
 }
+
 

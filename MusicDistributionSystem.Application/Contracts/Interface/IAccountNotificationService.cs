@@ -4,6 +4,7 @@ namespace MusicDistributionSystem.Application.Contracts.Services
     {
         Task SendVerificationCodeAsync(string destination, string code);
         Task SendPasswordResetCodeAsync(string destination, string code);
+        Task SendPaymentReceiptAsync(string destination, string planName, decimal amount, string reference);
     }
 }
 

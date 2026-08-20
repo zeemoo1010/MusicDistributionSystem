@@ -1,0 +1,46 @@
+@model MusicDistributionSystem.Application.DTOs.PlaylistDtos.CreatePlaylistRequestDto
+@{
+    ViewData["Title"] = "Create Playlist";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="glass-card p-4 p-md-5">
+            <h2 class="fw-bold text-light mb-1">Create Playlist</h2>
+            <p class="text-muted small mb-4">Group your favorite songs for any vibe</p>
+
+            <form method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Playlist Title *</label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g. Afrobeats Workout Heat" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="What's the energy of this playlist?"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Cover Artwork</label>
+                    <input asp-for="CoverImage" type="file" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="form-check mb-4">
+                    <input asp-for="IsPublic" class="form-check-input" type="checkbox" id="publicCheck" checked />
+                    <label class="form-check-label text-light" for="publicCheck">
+                        Make this playlist public on SoundSphere
+                    </label>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-brand btn-lg px-4">Create Playlist</button>
+                    <a asp-action="MyPlaylists" class="btn btn-outline-glass btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

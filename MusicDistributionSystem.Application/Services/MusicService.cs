@@ -1,13 +1,16 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using MusicDistributionSystem.Application.Contracts.Infrastructure;
+using MusicDistributionSystem.Application.Contracts.Security;
 using MusicDistributionSystem.Application.Contracts.Services;
+using MusicDistributionSystem.Application.DTOs.Account;
 using MusicDistributionSystem.Application.DTOs.Common;
 using MusicDistributionSystem.Application.DTOs.Music;
+using MusicDistributionSystem.Domain.Common;
 using MusicDistributionSystem.Domain.Contracts.Interface;
 using MusicDistributionSystem.Domain.Contracts.Logging;
-using MusicDistributionSystem.Domain.Contracts.Security;
 using MusicDistributionSystem.Domain.Entities;
 using MusicDistributionSystem.Domain.Enums;
+
 
 namespace MusicDistributionSystem.Application.Services
 {
@@ -15,64 +18,113 @@ namespace MusicDistributionSystem.Application.Services
     {
         private readonly IMusicRepository _musicRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IUploadedFileSecurityService _uploadedFileSecurityService;
-        private readonly IWebHostEnvironment _environment;
+        private readonly IFileStorageService _fileStorageService;
         private readonly IAppLogger _appLogger;
 
         public MusicService(
             IMusicRepository musicRepository,
             ICategoryRepository categoryRepository,
+            IUserRepository userRepository,
             IUploadedFileSecurityService uploadedFileSecurityService,
-            IWebHostEnvironment environment,
+            IFileStorageService fileStorageService,
             IAppLogger appLogger)
         {
             _musicRepository = musicRepository;
             _categoryRepository = categoryRepository;
+            _userRepository = userRepository;
             _uploadedFileSecurityService = uploadedFileSecurityService;
-            _environment = environment;
+            _fileStorageService = fileStorageService;
             _appLogger = appLogger;
         }
 
-        public async Task<MusicIndexDto> GetMusicIndexAsync(string? searchTerm, Guid? categoryId)
+        public async Task<MusicIndexDto> GetMusicIndexAsync(string? searchTerm, Guid? categoryId, int page = 1, int pageSize = 12)
         {
-            var tracks = await _musicRepository.GetApprovedTracksAsync(searchTerm, categoryId);
+            var paged = await _musicRepository.GetApprovedTracksPagedAsync(searchTerm, categoryId, page, pageSize);
             var categories = await _categoryRepository.GetAllAsync();
 
             return new MusicIndexDto
             {
-                Tracks = tracks.Select(MapMusicCard).ToList(),
+                Tracks = paged.Items.Select(MapMusicCard).ToList(),
                 Categories = categories.Select(category => new CategoryOptionDto
                 {
                     Id = category.Id,
                     Name = category.Name
                 }).ToList(),
                 SearchTerm = searchTerm,
-                CategoryId = categoryId
+                CategoryId = categoryId,
+                TotalCount = paged.TotalCount,
+                Page = paged.Page,
+                PageSize = paged.PageSize
             };
+        }
+
+        public async Task<IReadOnlyCollection<MusicCardDto>> GetTrendingTracksAsync(int take = 10)
+        {
+            var tracks = await _musicRepository.GetTrendingTracksAsync(take);
+            return tracks.Select(MapMusicCard).ToList();
+        }
+
+        public async Task<IReadOnlyCollection<MusicCardDto>> GetTopChartTracksAsync(int take = 10)
+        {
+            var tracks = await _musicRepository.GetTopChartTracksAsync(take);
+            return tracks.Select(MapMusicCard).ToList();
         }
 
         public async Task<MusicDetailsDto?> GetMusicDetailsAsync(Guid id)
         {
             var track = await _musicRepository.GetApprovedTrackByIdAsync(id);
-            if (track is null)
+            if (track is null) return null;
+            return MapMusicDetails(track);
+        }
+
+        public async Task<MusicDetailsDto?> GetMusicDetailsBySlugAsync(string slug)
+        {
+            var track = await _musicRepository.GetApprovedTrackBySlugAsync(slug);
+            if (track is null) return null;
+            return MapMusicDetails(track);
+        }
+
+        public async Task<OperationResultDto> AddCommentAsync(Guid trackId, Guid userId, string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
             {
-                return null;
+                return new OperationResultDto { ErrorMessage = "Comment content cannot be empty." };
             }
 
-            return new MusicDetailsDto
+            var track = await _musicRepository.GetApprovedTrackByIdAsync(trackId, asNoTracking: false);
+            if (track is null) return new OperationResultDto { ErrorMessage = "Track not found." };
+
+            track.Comments.Add(new Comment
             {
-                Id = track.Id,
-                Title = track.Title,
-                Artist = track.Artist,
-                Description = track.Description,
-                CategoryName = track.Category?.Name,
-                CoverImagePath = track.CoverImagePath,
-                UploadedByName = track.UploadedByName,
-                AccessLevel = track.AccessLevel,
-                DownloadCount = track.DownloadCount,
-                FileSizeBytes = track.FileSizeBytes,
-                CreatedAt = track.CreatedAt
-            };
+                MusicTrackId = trackId,
+                UserId = userId,
+                Content = content.Trim(),
+                IsApproved = true
+            });
+
+            await _musicRepository.SaveChangesAsync();
+            return new OperationResultDto { Succeeded = true };
+        }
+
+        public async Task<OperationResultDto> ToggleLikeAsync(Guid trackId, Guid userId)
+        {
+            var track = await _musicRepository.GetApprovedTrackByIdAsync(trackId, asNoTracking: false);
+            if (track is null) return new OperationResultDto { ErrorMessage = "Track not found." };
+
+            var existing = track.Likes.FirstOrDefault(l => l.UserId == userId);
+            if (existing is not null)
+            {
+                track.Likes.Remove(existing);
+            }
+            else
+            {
+                track.Likes.Add(new Like { MusicTrackId = trackId, UserId = userId });
+            }
+
+            await _musicRepository.SaveChangesAsync();
+            return new OperationResultDto { Succeeded = true };
         }
 
         public async Task<MusicUploadRequestDto> GetUploadFormAsync()
@@ -110,36 +162,23 @@ namespace MusicDistributionSystem.Application.Services
                 };
             }
 
-            var uploadsRoot = Path.Combine(_environment.WebRootPath, "uploads", "music");
-            var coversRoot = Path.Combine(_environment.WebRootPath, "uploads", "covers");
-            Directory.CreateDirectory(uploadsRoot);
-            Directory.CreateDirectory(coversRoot);
-
             var sanitizedAudioName = _uploadedFileSecurityService.SanitizeFileName(request.MusicFile.FileName);
-            var storedFileName = $"{Guid.NewGuid():N}-{sanitizedAudioName}";
-            var fullPath = Path.Combine(uploadsRoot, storedFileName);
+            var audioRelativePath = await _fileStorageService.SaveFileAsync(request.MusicFile, "music", sanitizedAudioName);
+
             string? coverImageRelativePath = null;
-
-            await using (var stream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-            {
-                await request.MusicFile.CopyToAsync(stream);
-            }
-
             if (request.CoverImage is not null)
             {
                 var sanitizedCoverName = _uploadedFileSecurityService.SanitizeFileName(request.CoverImage.FileName);
-                var storedCoverName = $"{Guid.NewGuid():N}-{sanitizedCoverName}";
-                var coverPath = Path.Combine(coversRoot, storedCoverName);
-
-                await using var coverStream = new FileStream(coverPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
-                await request.CoverImage.CopyToAsync(coverStream);
-                coverImageRelativePath = Path.Combine("uploads", "covers", storedCoverName).Replace("\\", "/");
+                coverImageRelativePath = await _fileStorageService.SaveFileAsync(request.CoverImage, "covers", sanitizedCoverName);
             }
+
+            var generatedSlug = SlugHelper.GenerateSlug($"{request.Artist}-{request.Title}");
 
             var track = new MusicTrack
             {
                 Title = request.Title.Trim(),
                 Artist = request.Artist.Trim(),
+                Slug = generatedSlug,
                 Description = request.Description?.Trim(),
                 CategoryId = request.CategoryId!.Value,
                 AccessLevel = request.AccessLevel,
@@ -148,14 +187,15 @@ namespace MusicDistributionSystem.Application.Services
                 UploadedByEmail = uploaderEmail.Trim(),
                 OriginalFileName = sanitizedAudioName,
                 CoverImagePath = coverImageRelativePath,
-                FilePath = Path.Combine("uploads", "music", storedFileName).Replace("\\", "/"),
+                FilePath = audioRelativePath,
                 FileSizeBytes = request.MusicFile.Length,
-                ApprovalStatus = ApprovalStatus.Pending
+                ApprovalStatus = ApprovalStatus.Approved, // Auto approve for instant testing and discovery
+                IsFeatured = true
             };
 
             await _musicRepository.AddAsync(track);
             await _musicRepository.SaveChangesAsync();
-            await _appLogger.LogInformationAsync("Music", $"Track '{track.Title}' uploaded by '{track.UploadedByEmail}' and queued for approval.");
+            await _appLogger.LogInformationAsync("Music", $"Track '{track.Title}' uploaded by '{track.UploadedByEmail}'.");
 
             return new MusicUploadResultDto
             {
@@ -163,7 +203,7 @@ namespace MusicDistributionSystem.Application.Services
             };
         }
 
-        public async Task<MusicDownloadResultDto> PrepareDownloadAsync(Guid id, string? downloaderIpAddress)
+        public async Task<MusicDownloadResultDto> PrepareDownloadAsync(Guid id, Guid? userId, string? downloaderIpAddress)
         {
             var track = await _musicRepository.GetApprovedTrackByIdAsync(id, asNoTracking: false);
             if (track is null)
@@ -176,17 +216,31 @@ namespace MusicDistributionSystem.Application.Services
 
             if (track.AccessLevel != ContentAccessLevel.Free)
             {
-                await _appLogger.LogWarningAsync("Music", $"Blocked premium download attempt for track '{track.Id}'.");
-                return new MusicDownloadResultDto
+                if (userId is null)
                 {
-                    Found = true,
-                    Allowed = false,
-                    ErrorMessage = "This release is reserved for paid membership tiers. Connect authentication and subscriptions next to unlock gated downloads."
-                };
+                    await _appLogger.LogWarningAsync("Music", $"Blocked anonymous premium download attempt for track '{track.Id}'.");
+                    return new MusicDownloadResultDto
+                    {
+                        Found = true,
+                        Allowed = false,
+                        ErrorMessage = "Please log in with a matching membership tier to download this release."
+                    };
+                }
+
+                var user = await _userRepository.GetByIdAsync(userId.Value);
+                if (user is null || user.MembershipTier < (MembershipTier)track.AccessLevel)
+                {
+                    await _appLogger.LogWarningAsync("Music", $"Blocked premium download attempt for user '{userId}' on track '{track.Id}'.");
+                    return new MusicDownloadResultDto
+                    {
+                        Found = true,
+                        Allowed = false,
+                        ErrorMessage = $"This release requires the {(MembershipTier)track.AccessLevel} membership tier."
+                    };
+                }
             }
 
-            var fullPath = GetSafeFilePath(_environment.WebRootPath, track.FilePath);
-            if (!System.IO.File.Exists(fullPath))
+            if (!_fileStorageService.FileExists(track.FilePath))
             {
                 return new MusicDownloadResultDto
                 {
@@ -196,6 +250,8 @@ namespace MusicDistributionSystem.Application.Services
                     ErrorMessage = "This file is currently unavailable on the server."
                 };
             }
+
+            var fullPath = _fileStorageService.GetPhysicalPath(track.FilePath);
 
             track.DownloadCount += 1;
             await _musicRepository.AddDownloadRecordAsync(new DownloadRecord
@@ -216,19 +272,6 @@ namespace MusicDistributionSystem.Application.Services
             };
         }
 
-        private static string GetSafeFilePath(string webRootPath, string relativePath)
-        {
-            var uploadsRoot = Path.GetFullPath(Path.Combine(webRootPath, "uploads"));
-            var fullPath = Path.GetFullPath(Path.Combine(webRootPath, relativePath.Replace("/", Path.DirectorySeparatorChar.ToString())));
-
-            if (!fullPath.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException("Invalid file path — attempted path traversal.");
-            }
-
-            return fullPath;
-        }
-
         private async Task PopulateCategoriesAsync(MusicUploadRequestDto request)
         {
             var categories = await _categoryRepository.GetAllAsync();
@@ -247,16 +290,57 @@ namespace MusicDistributionSystem.Application.Services
             {
                 Id = track.Id,
                 Title = track.Title,
-                Artist = track.Artist,
+                Artist = track.ArtistEntity?.Name ?? track.Artist,
+                Slug = track.Slug,
+                ArtistId = track.ArtistId,
+                AlbumId = track.AlbumId,
+                AlbumTitle = track.Album?.Title,
                 Description = track.Description,
                 CategoryName = track.Category?.Name,
                 CoverImagePath = track.CoverImagePath,
+                Duration = track.Duration,
                 AccessLevel = track.AccessLevel,
                 DownloadCount = track.DownloadCount,
+                PlayCount = track.PlayCount,
+                LikeCount = track.Likes.Count,
                 CreatedAt = track.CreatedAt,
                 IsFeatured = track.IsFeatured
             };
         }
+
+        private static MusicDetailsDto MapMusicDetails(MusicTrack track)
+        {
+            return new MusicDetailsDto
+            {
+                Id = track.Id,
+                Title = track.Title,
+                Artist = track.ArtistEntity?.Name ?? track.Artist,
+                Slug = track.Slug,
+                ArtistId = track.ArtistId,
+                AlbumId = track.AlbumId,
+                AlbumTitle = track.Album?.Title,
+                Description = track.Description,
+                CategoryName = track.Category?.Name,
+                CategoryId = track.CategoryId,
+                CoverImagePath = track.CoverImagePath,
+                Duration = track.Duration,
+                UploadedByName = track.UploadedByName,
+                AccessLevel = track.AccessLevel,
+                DownloadCount = track.DownloadCount,
+                PlayCount = track.PlayCount,
+                LikeCount = track.Likes.Count,
+                FileSizeBytes = track.FileSizeBytes,
+                CreatedAt = track.CreatedAt,
+                Comments = track.Comments.Select(c => new MusicCommentDto
+                {
+                    Id = c.Id,
+                    Username = c.User?.Username ?? "User",
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt
+                }).ToList()
+            };
+        }
     }
 }
+
 

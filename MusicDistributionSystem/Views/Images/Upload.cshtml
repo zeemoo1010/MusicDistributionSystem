@@ -1,0 +1,53 @@
+@model MusicDistributionSystem.Application.DTOs.ImageDtos.ImageUploadRequestDto
+@{
+    ViewData["Title"] = "Upload Artwork or Wallpaper";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="glass-card p-4 p-md-5">
+            <h2 class="fw-bold text-light mb-1">Upload Artwork / Wallpaper</h2>
+            <p class="text-muted small mb-4">Share wallpapers, album covers, or artist photos with the SoundSphere community</p>
+
+            <form method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Artwork Title *</label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g. Afrobeats Neon Vibes Wallpaper" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-light">Category</label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="Model.Categories">
+                            <option value="">Select Category (Optional)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-light">Access Level</label>
+                        <select asp-for="AccessLevel" class="form-select" asp-items="Html.GetEnumSelectList<MusicDistributionSystem.Domain.Enums.ContentAccessLevel>()"></select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-light">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Art backstory, resolution info..."></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-light">Image File (JPG / PNG) *</label>
+                    <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" required />
+                    <span asp-validation-for="ImageFile" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-brand btn-lg px-4">Upload Artwork</button>
+                    <a asp-action="Index" class="btn btn-outline-glass btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+@model MusicDistributionSystem.Application.DTOs.VideoDtos.VideoIndexDto
+@{
+    ViewData["Title"] = "Music Videos - Stream & Watch";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold text-light m-0">🎬 Music Videos</h2>
+        <p class="text-muted small m-0">Watch official visuals, live sessions, and premiere videos</p>
+    </div>
+    @if (User.IsInRole("Artist") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+    {
+        <a asp-action="Upload" class="btn btn-brand">+ Upload Video</a>
+    }
+</div>
+
+<!-- Search & Filters -->
+<div class="glass-card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="Search music videos..." value="@Model.SearchTerm" />
+        </div>
+        <div class="col-md-4">
+            <select name="categoryId" class="form-select">
+                <option value="">All Categories</option>
+                @foreach (var cat in Model.Categories)
+                {
+                    <option value="@cat.Id" selected="@(Model.CategoryId == cat.Id ? "selected" : null)">@cat.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-brand w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Video Grid -->
+@if (Model.Videos.Any())
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-4">
+        @foreach (var video in Model.Videos)
+        {
+            <div class="col">
+                <div class="media-card h-100 d-flex flex-column">
+                    <div class="position-relative rounded-3 overflow-hidden" style="aspect-ratio: 16/9; background: #000;">
+                        <img src="@(video.ThumbnailPath ?? "/images/default-cover.jpg")" alt="@video.Title" class="w-100 h-100 object-fit-cover" />
+                        <a asp-action="Watch" asp-route-slug="@video.Slug" class="position-absolute inset-0 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 text-light fs-3 text-decoration-none">
+                            ▶
+                        </a>
+                    </div>
+                    <div class="media-title mt-2">
+                        <a asp-action="Watch" asp-route-slug="@video.Slug" class="text-light text-decoration-none">@video.Title</a>
+                    </div>
+                    <div class="media-sub">@video.ArtistName</div>
+                    <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top border-secondary border-opacity-25 small text-muted">
+                        <span>👁 @video.ViewCount views</span>
+                        <span class="badge-tier badge-tier-@video.AccessLevel.ToString().ToLower()">@video.AccessLevel</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="glass-card p-5 text-center my-4">
+        <h4 class="text-muted">No videos found</h4>
+        <p class="text-secondary">Be the first to upload a music video!</p>
+    </div>
+}

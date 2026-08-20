@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Hosting;
+using MusicDistributionSystem.Application.Contracts.Infrastructure;
 using MusicDistributionSystem.Application.Contracts.Services;
 using MusicDistributionSystem.Application.DTOs.Account;
 using MusicDistributionSystem.Application.DTOs.Dashboard;
@@ -10,16 +10,16 @@ namespace MusicDistributionSystem.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IMusicRepository _musicRepository;
-        private readonly IWebHostEnvironment _environment;
+        private readonly IFileStorageService _fileStorageService;
 
         public DashboardService(
             IUserRepository userRepository,
             IMusicRepository musicRepository,
-            IWebHostEnvironment environment)
+            IFileStorageService fileStorageService)
         {
             _userRepository = userRepository;
             _musicRepository = musicRepository;
-            _environment = environment;
+            _fileStorageService = fileStorageService;
         }
 
         public async Task<DashboardIndexDto?> GetDashboardAsync(Guid userId)
@@ -55,19 +55,6 @@ namespace MusicDistributionSystem.Application.Services
             };
         }
 
-        private static string GetSafeFilePath(string webRootPath, string relativePath)
-        {
-            var uploadsRoot = Path.GetFullPath(Path.Combine(webRootPath, "uploads"));
-            var fullPath = Path.GetFullPath(Path.Combine(webRootPath, relativePath.Replace("/", Path.DirectorySeparatorChar.ToString())));
-
-            if (!fullPath.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException("Invalid file path — attempted path traversal.");
-            }
-
-            return fullPath;
-        }
-
         public async Task<OperationResultDto> DeleteOwnUploadAsync(Guid userId, Guid trackId, bool isAdmin)
         {
             var track = await _musicRepository.GetByIdAsync(trackId, asNoTracking: false);
@@ -81,19 +68,11 @@ namespace MusicDistributionSystem.Application.Services
                 return new OperationResultDto { ErrorMessage = "You do not have permission to delete this upload." };
             }
 
-            var fullPath = GetSafeFilePath(_environment.WebRootPath, track.FilePath);
-            if (File.Exists(fullPath))
-            {
-                File.Delete(fullPath);
-            }
+            await _fileStorageService.DeleteFileAsync(track.FilePath);
 
             if (!string.IsNullOrWhiteSpace(track.CoverImagePath))
             {
-                var coverPath = GetSafeFilePath(_environment.WebRootPath, track.CoverImagePath);
-                if (File.Exists(coverPath))
-                {
-                    File.Delete(coverPath);
-                }
+                await _fileStorageService.DeleteFileAsync(track.CoverImagePath);
             }
 
             _musicRepository.Remove(track);

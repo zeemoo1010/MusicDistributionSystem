@@ -60,6 +60,67 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("AccountTokens");
                 });
 
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Album", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccessLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ArtistId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CoverImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1500)
+                        .HasColumnType("nvarchar(1500)");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ReleaseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("nvarchar(180)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<Guid>("UploadedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtistId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("UploadedByUserId");
+
+                    b.ToTable("Albums");
+                });
+
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.AnalyticsEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -95,6 +156,75 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("AnalyticsEvents");
                 });
 
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Artist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BannerImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InstagramUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("ProfilePicturePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("SpotifyUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TwitterUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("YouTubeUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Artists");
+                });
+
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -110,9 +240,17 @@ namespace MusicDistributionSystem.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Slug")
                         .IsUnique();
 
                     b.ToTable("Categories");
@@ -126,7 +264,8 @@ namespace MusicDistributionSystem.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -134,7 +273,7 @@ namespace MusicDistributionSystem.Migrations
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("MediaAssetId")
+                    b.Property<Guid?>("MusicTrackId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ParentCommentId")
@@ -143,13 +282,18 @@ namespace MusicDistributionSystem.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("VideoId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ParentCommentId");
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("MediaAssetId", "CreatedAt");
+                    b.HasIndex("MusicTrackId", "CreatedAt");
+
+                    b.HasIndex("VideoId", "CreatedAt");
 
                     b.ToTable("Comments");
                 });
@@ -166,15 +310,10 @@ namespace MusicDistributionSystem.Migrations
                     b.Property<string>("DownloaderIpAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("MediaAssetId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("MusicTrackId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MediaAssetId");
 
                     b.HasIndex("MusicTrackId");
 
@@ -187,17 +326,65 @@ namespace MusicDistributionSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AccessLevel")
+                        .HasColumnType("int");
+
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DownloadCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MimeType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ReviewedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("nvarchar(180)");
+
+                    b.Property<string>("ThumbnailPath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("UploadedByEmail")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
@@ -207,7 +394,22 @@ namespace MusicDistributionSystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid>("UploadedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ReviewedByUserId");
+
+                    b.HasIndex("UploadedByUserId");
 
                     b.ToTable("ImageAssets");
                 });
@@ -221,130 +423,26 @@ namespace MusicDistributionSystem.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("MediaAssetId")
+                    b.Property<Guid?>("MusicTrackId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("VideoId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("MediaAssetId");
+                    b.HasIndex("MusicTrackId");
 
-                    b.HasIndex("UserId", "MediaAssetId");
+                    b.HasIndex("VideoId");
+
+                    b.HasIndex("UserId", "MusicTrackId");
+
+                    b.HasIndex("UserId", "VideoId");
 
                     b.ToTable("Likes");
-                });
-
-            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MediaAsset", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AccessLevel")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("ApprovalStatus")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DownloadCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("Duration")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("FileSizeBytes")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsFeatured")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MimeType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RejectionReason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Resolution")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ReviewedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ReviewedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ThumbnailPath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("UploadedByEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UploadedByName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UploadedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ViewCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("ReviewedByUserId");
-
-                    b.HasIndex("UploadedByUserId");
-
-                    b.ToTable("MediaAssets");
-                });
-
-            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MediaAssetTag", b =>
-                {
-                    b.Property<Guid>("MediaAssetId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("MediaAssetId", "TagId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("MediaAssetTags");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MembershipPlan", b =>
@@ -398,6 +496,9 @@ namespace MusicDistributionSystem.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<Guid?>("AlbumId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("int");
 
@@ -405,6 +506,9 @@ namespace MusicDistributionSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid?>("ArtistId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
@@ -424,6 +528,9 @@ namespace MusicDistributionSystem.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -434,9 +541,17 @@ namespace MusicDistributionSystem.Migrations
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("bit");
 
+                    b.Property<string>("MimeType")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PlayCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("RejectionReason")
                         .HasMaxLength(500)
@@ -448,10 +563,18 @@ namespace MusicDistributionSystem.Migrations
                     b.Property<Guid?>("ReviewedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<int?>("TrackNumber")
+                        .HasColumnType("int");
 
                     b.Property<string>("UploadedByEmail")
                         .IsRequired()
@@ -468,11 +591,20 @@ namespace MusicDistributionSystem.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AlbumId");
+
+                    b.HasIndex("ArtistId");
+
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("ReviewedByUserId");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.HasIndex("UploadedByUserId");
+
+                    b.HasIndex("ApprovalStatus", "IsFeatured", "CreatedAt");
 
                     b.ToTable("MusicTracks");
                 });
@@ -517,6 +649,7 @@ namespace MusicDistributionSystem.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -555,6 +688,71 @@ namespace MusicDistributionSystem.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PaymentTransactions");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Playlist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CoverImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsEditorial")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("nvarchar(180)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Playlists");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.PlaylistTrack", b =>
+                {
+                    b.Property<Guid>("PlaylistId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MusicTrackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AddedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("int");
+
+                    b.HasKey("PlaylistId", "MusicTrackId");
+
+                    b.HasIndex("MusicTrackId");
+
+                    b.ToTable("PlaylistTracks");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Role", b =>
@@ -602,6 +800,21 @@ namespace MusicDistributionSystem.Migrations
                         .IsUnique();
 
                     b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.TrackTag", b =>
+                {
+                    b.Property<Guid>("MusicTrackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("MusicTrackId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("TrackTags");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.User", b =>
@@ -703,6 +916,122 @@ namespace MusicDistributionSystem.Migrations
                     b.ToTable("UserSubscriptions");
                 });
 
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Video", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccessLevel")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ArtistId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ArtistName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("DownloadCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MimeType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ReviewedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("nvarchar(220)");
+
+                    b.Property<string>("ThumbnailPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("nvarchar(180)");
+
+                    b.Property<string>("UploadedByEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("UploadedByName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("UploadedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ViewCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtistId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ReviewedByUserId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("UploadedByUserId");
+
+                    b.HasIndex("ApprovalStatus", "IsFeatured", "CreatedAt");
+
+                    b.ToTable("Videos");
+                });
+
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.AccountToken", b =>
                 {
                     b.HasOne("MusicDistributionSystem.Domain.Entities.User", "User")
@@ -714,13 +1043,49 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Album", b =>
+                {
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Artist", "Artist")
+                        .WithMany("Albums")
+                        .HasForeignKey("ArtistId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Category", "Category")
+                        .WithMany("Albums")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "UploadedByUser")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Artist");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("UploadedByUser");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Artist", b =>
+                {
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Comment", b =>
                 {
-                    b.HasOne("MusicDistributionSystem.Domain.Entities.MediaAsset", "MediaAsset")
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.MusicTrack", "MusicTrack")
                         .WithMany("Comments")
-                        .HasForeignKey("MediaAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MusicTrackId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("MusicDistributionSystem.Domain.Entities.Comment", "ParentComment")
                         .WithMany("Replies")
@@ -733,19 +1098,22 @@ namespace MusicDistributionSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("MediaAsset");
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Video", "Video")
+                        .WithMany("Comments")
+                        .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("MusicTrack");
 
                     b.Navigation("ParentComment");
 
                     b.Navigation("User");
+
+                    b.Navigation("Video");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.DownloadRecord", b =>
                 {
-                    b.HasOne("MusicDistributionSystem.Domain.Entities.MediaAsset", null)
-                        .WithMany("Downloads")
-                        .HasForeignKey("MediaAssetId");
-
                     b.HasOne("MusicDistributionSystem.Domain.Entities.MusicTrack", "MusicTrack")
                         .WithMany("Downloads")
                         .HasForeignKey("MusicTrackId")
@@ -755,40 +1123,20 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("MusicTrack");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Like", b =>
-                {
-                    b.HasOne("MusicDistributionSystem.Domain.Entities.MediaAsset", "MediaAsset")
-                        .WithMany("Likes")
-                        .HasForeignKey("MediaAssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MediaAsset");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MediaAsset", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.ImageAsset", b =>
                 {
                     b.HasOne("MusicDistributionSystem.Domain.Entities.Category", "Category")
-                        .WithMany("MediaAssets")
+                        .WithMany("ImageAssets")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("MusicDistributionSystem.Domain.Entities.User", "ReviewedByUser")
                         .WithMany()
                         .HasForeignKey("ReviewedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("MusicDistributionSystem.Domain.Entities.User", "UploadedByUser")
-                        .WithMany()
+                        .WithMany("UploadedImages")
                         .HasForeignKey("UploadedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -800,31 +1148,47 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("UploadedByUser");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MediaAssetTag", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Like", b =>
                 {
-                    b.HasOne("MusicDistributionSystem.Domain.Entities.MediaAsset", "MediaAsset")
-                        .WithMany("MediaAssetTags")
-                        .HasForeignKey("MediaAssetId")
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.MusicTrack", "MusicTrack")
+                        .WithMany("Likes")
+                        .HasForeignKey("MusicTrackId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MusicDistributionSystem.Domain.Entities.Tag", "Tag")
-                        .WithMany("MediaAssetTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Video", "Video")
+                        .WithMany("Likes")
+                        .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("MediaAsset");
+                    b.Navigation("MusicTrack");
 
-                    b.Navigation("Tag");
+                    b.Navigation("User");
+
+                    b.Navigation("Video");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MusicTrack", b =>
                 {
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Album", "Album")
+                        .WithMany("Tracks")
+                        .HasForeignKey("AlbumId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Artist", "ArtistEntity")
+                        .WithMany("Tracks")
+                        .HasForeignKey("ArtistId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("MusicDistributionSystem.Domain.Entities.Category", "Category")
                         .WithMany("MusicTracks")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MusicDistributionSystem.Domain.Entities.User", "ReviewedByUser")
@@ -837,6 +1201,10 @@ namespace MusicDistributionSystem.Migrations
                         .HasForeignKey("UploadedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Album");
+
+                    b.Navigation("ArtistEntity");
 
                     b.Navigation("Category");
 
@@ -872,6 +1240,55 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("Plan");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Playlist", b =>
+                {
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "User")
+                        .WithMany("Playlists")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.PlaylistTrack", b =>
+                {
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.MusicTrack", "MusicTrack")
+                        .WithMany("PlaylistTracks")
+                        .HasForeignKey("MusicTrackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Playlist", "Playlist")
+                        .WithMany("PlaylistTracks")
+                        .HasForeignKey("PlaylistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MusicTrack");
+
+                    b.Navigation("Playlist");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.TrackTag", b =>
+                {
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.MusicTrack", "MusicTrack")
+                        .WithMany("TrackTags")
+                        .HasForeignKey("MusicTrackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Tag", "Tag")
+                        .WithMany("TrackTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MusicTrack");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.UserRole", b =>
@@ -912,11 +1329,62 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Video", b =>
+                {
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Artist", "Artist")
+                        .WithMany("Videos")
+                        .HasForeignKey("ArtistId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.Category", "Category")
+                        .WithMany("Videos")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "ReviewedByUser")
+                        .WithMany()
+                        .HasForeignKey("ReviewedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MusicDistributionSystem.Domain.Entities.User", "UploadedByUser")
+                        .WithMany("UploadedVideos")
+                        .HasForeignKey("UploadedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Artist");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("ReviewedByUser");
+
+                    b.Navigation("UploadedByUser");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Album", b =>
+                {
+                    b.Navigation("Tracks");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Artist", b =>
+                {
+                    b.Navigation("Albums");
+
+                    b.Navigation("Tracks");
+
+                    b.Navigation("Videos");
+                });
+
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Category", b =>
                 {
-                    b.Navigation("MediaAssets");
+                    b.Navigation("Albums");
+
+                    b.Navigation("ImageAssets");
 
                     b.Navigation("MusicTracks");
+
+                    b.Navigation("Videos");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Comment", b =>
@@ -924,7 +1392,7 @@ namespace MusicDistributionSystem.Migrations
                     b.Navigation("Replies");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MediaAsset", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MusicTrack", b =>
                 {
                     b.Navigation("Comments");
 
@@ -932,12 +1400,14 @@ namespace MusicDistributionSystem.Migrations
 
                     b.Navigation("Likes");
 
-                    b.Navigation("MediaAssetTags");
+                    b.Navigation("PlaylistTracks");
+
+                    b.Navigation("TrackTags");
                 });
 
-            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.MusicTrack", b =>
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Playlist", b =>
                 {
-                    b.Navigation("Downloads");
+                    b.Navigation("PlaylistTracks");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Role", b =>
@@ -947,16 +1417,29 @@ namespace MusicDistributionSystem.Migrations
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Tag", b =>
                 {
-                    b.Navigation("MediaAssetTags");
+                    b.Navigation("TrackTags");
                 });
 
             modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.User", b =>
                 {
                     b.Navigation("AccountTokens");
 
+                    b.Navigation("Playlists");
+
+                    b.Navigation("UploadedImages");
+
                     b.Navigation("UploadedTracks");
 
+                    b.Navigation("UploadedVideos");
+
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("MusicDistributionSystem.Domain.Entities.Video", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

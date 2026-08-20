@@ -1,0 +1,37 @@
+@model IReadOnlyCollection<MusicDistributionSystem.Application.DTOs.ArtistDtos.ArtistCardDto>
+@{
+    ViewData["Title"] = "Featured & Verified Artists";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold text-light m-0">🌟 Verified Artists</h2>
+        <p class="text-muted small m-0">Discover top African musicians, producers, and creators</p>
+    </div>
+    @if (User.IsInRole("Artist") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+    {
+        <a asp-action="Create" class="btn btn-brand">+ Add Artist Profile</a>
+    }
+</div>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    @foreach (var artist in Model)
+    {
+        <div class="col">
+            <div class="glass-card p-4 text-center h-100 d-flex flex-column align-items-center">
+                <a asp-action="Details" asp-route-slug="@artist.Slug" class="text-decoration-none">
+                    <img src="@(artist.ProfilePicturePath ?? "/images/default-avatar.jpg")" alt="@artist.Name" class="artist-avatar" />
+                    <h4 class="fw-bold text-light mb-1">
+                        @artist.Name @(artist.IsVerified ? "✓" : "")
+                    </h4>
+                </a>
+                <p class="text-muted small mb-3">@(artist.Country ?? "Artist Profile")</p>
+                <div class="d-flex gap-3 text-secondary small mt-auto pt-3 border-top border-secondary border-opacity-25 w-100 justify-content-center">
+                    <span>🎵 @artist.TrackCount Tracks</span>
+                    <span>💿 @artist.AlbumCount Albums</span>
+                </div>
+                <a asp-action="Details" asp-route-slug="@artist.Slug" class="btn btn-sm btn-outline-glass w-100 mt-3">View Discography</a>
+            </div>
+        </div>
+    }
+</div>
